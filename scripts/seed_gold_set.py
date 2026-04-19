@@ -22,6 +22,8 @@ from pathlib import Path
 
 import httpx
 
+REJECT_CATEGORY_SLUG = "sin_clasificar.pendiente"
+
 
 def main(path: Path) -> int:
     base = os.environ["CATEGORIZER_BASE_URL"].rstrip("/")
@@ -32,12 +34,21 @@ def main(path: Path) -> int:
     with path.open() as f, httpx.Client(timeout=30.0) as client:
         ok = 0
         fail = 0
+        skipped_reject = 0
         for line in f:
             line = line.strip()
             if not line:
                 continue
             row = json.loads(line)
             expected = row.pop("expected_category_slug")
+            # Skip the deliberate reject-path rows — seeding them into
+            # labeled_transactions pollutes the kNN neighbor pool (a future tx
+            # close to one of these embeddings would retrieve
+            # sin_clasificar.pendiente as a neighbor). The cascade reject path
+            # is exercised by the reject tier itself, not the seed data.
+            if expected == REJECT_CATEGORY_SLUG:
+                skipped_reject += 1
+                continue
             body = {
                 "transaction": {
                     "external_id": row["external_id"],
@@ -57,7 +68,7 @@ def main(path: Path) -> int:
                 fail += 1
                 print(f"FAILED {row['external_id']}: {resp.status_code} {resp.text[:120]}")
 
-    print(f"Seeded {ok} rows ({fail} failed).")
+    print(f"Seeded {ok} rows ({fail} failed, {skipped_reject} skipped as {REJECT_CATEGORY_SLUG}).")
     return 0 if fail == 0 else 1
 
 

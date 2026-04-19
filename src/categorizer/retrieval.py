@@ -104,6 +104,12 @@ async def knn(
     # Branch on account_slug to avoid `:name::type` casts, which SQLAlchemy's
     # text() parser treats as literal (not a bindparam) and forwards to Postgres
     # unbound, causing a syntax error.
+    #
+    # sin_clasificar.pendiente is excluded from the neighbor pool: those rows
+    # represent "we do not know" and must never vote for a category. Belt-and-
+    # suspenders alongside the seed script skip — even if a user later corrects
+    # a tx to sin_clasificar.pendiente (legit action), that vector should not
+    # be retrieved as a neighbor for subsequent predictions.
     account_filter = "AND account_slug = :account_slug" if account_slug else ""
     sql = text(
         f"""
@@ -111,6 +117,7 @@ async def knn(
                1 - (embedding <=> (:q)::vector) AS similarity
         FROM labeled_transactions
         WHERE embedding IS NOT NULL
+          AND category_slug <> 'sin_clasificar.pendiente'
           {account_filter}
         ORDER BY embedding <=> (:q)::vector
         LIMIT :k
