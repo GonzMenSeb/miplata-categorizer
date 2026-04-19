@@ -112,6 +112,9 @@ _MERCHANT_RULES: tuple[tuple[re.Pattern[str], str, str], ...] = (
     (re.compile(r"\bebanx\b"), "compras.tiendas_online", "Pago vía EBANX (gateway)."),
     (re.compile(r"\bmercadolibre\b"), "compras.tiendas_online", "Mercado Libre."),
     (re.compile(r"\bamazon\b"), "compras.tiendas_online", "Amazon."),
+
+    # ── Ropa ────────────────────────────────────────────────────────────
+    (re.compile(r"\barturo\s+calle\b"), "compras.ropa", "Arturo Calle (ropa masculina)."),
 )
 
 

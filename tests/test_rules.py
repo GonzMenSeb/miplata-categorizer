@@ -124,6 +124,9 @@ def test_internal_transfer_requires_counterparty() -> None:
         ("RECARGA PTM CLARO", "hogar.internet_telefonia"),
         ("MOVISTAR", "hogar.internet_telefonia"),
         ("COMPRA PSE EN CLARO", "hogar.internet_telefonia"),
+        # compras.ropa — Arturo Calle (menswear).
+        ("ARTURO CALLE", "compras.ropa"),
+        ("COMPRA EN ARTURO CALLE", "compras.ropa"),
     ],
 )
 def test_rule_tier_emits_expected_category(description: str, expected_slug: str) -> None:
@@ -151,6 +154,8 @@ def test_rule_tier_emits_expected_category(description: str, expected_slug: str)
         "COMPRA EN DROGA XYZ",
         # "ptm" embedded in an unrelated token should not trigger the telco rule.
         "COMPRA EN SEPTMBRE SAS",
+        # Plain "calle" (street) shouldn't trigger the Arturo Calle rule.
+        "PAGO EN LA CALLE 10",
     ],
 )
 def test_rule_tier_falls_through(description: str) -> None:
