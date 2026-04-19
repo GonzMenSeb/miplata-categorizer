@@ -347,15 +347,34 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--gold", type=Path, required=True)
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--concurrency", type=int, default=4)
+    p.add_argument(
+        "--render",
+        action="store_true",
+        help="Also render PNG reports next to --out (requires matplotlib).",
+    )
+    p.add_argument(
+        "--render-out",
+        type=Path,
+        default=None,
+        help="Directory for rendered PNGs (default: <out_parent>/report/).",
+    )
     args = p.parse_args(argv)
 
     result, _ = asyncio.run(run_eval(args.base_url, args.token, args.gold, args.concurrency))
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(asdict(result), indent=2), encoding="utf-8")
+    metrics_dict = asdict(result)
+    args.out.write_text(json.dumps(metrics_dict, indent=2), encoding="utf-8")
 
     prom_path = args.out.with_suffix(".prom")
     prom_path.write_text(to_prom_textfile(result), encoding="utf-8")
+
+    if args.render:
+        from . import render as _render  # local import: matplotlib is optional
+        render_out = args.render_out or (args.out.parent / "report")
+        produced = _render.run(metrics_dict, render_out)
+        for path in produced:
+            print(f"rendered: {path}", file=sys.stderr)
 
     print(
         f"total={result.total} errors={result.errors} "

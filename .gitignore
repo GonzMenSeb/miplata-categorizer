@@ -19,5 +19,8 @@ artifacts/
 
 # Eval run artifacts — only baselines/ is tracked.
 eval/metrics.json
+eval/metrics*.json
 eval/metrics.prom
+eval/metrics*.prom
+eval/report/
 

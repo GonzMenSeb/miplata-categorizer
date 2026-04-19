@@ -40,6 +40,7 @@ eval = [
     "httpx>=0.28",
     "pandas>=2.2",
     "numpy>=2.0",
+    "matplotlib>=3.9",
 ]
 
 [build-system]
