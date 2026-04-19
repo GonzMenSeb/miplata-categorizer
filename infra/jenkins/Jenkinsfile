@@ -10,7 +10,7 @@ pipeline {
     }
 
     environment {
-        REGISTRY         = 'registry.web.vespiridion.org'
+        REGISTRY         = 'zot.web.vespiridion.org'
         IMAGE            = "${REGISTRY}/miplata/categorizer"
         VPS_HOST         = 'ubuntu@148.113.172.15'
         VPS_APP_DIR      = '/opt/categorizer'
