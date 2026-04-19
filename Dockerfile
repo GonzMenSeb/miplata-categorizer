@@ -36,6 +36,7 @@ COPY src /app/src
 COPY config /app/config
 COPY alembic /app/alembic
 COPY alembic.ini /app/alembic.ini
+COPY scripts /app/scripts
 
 RUN mkdir -p /app/artifacts && chown -R app:app /app
 
