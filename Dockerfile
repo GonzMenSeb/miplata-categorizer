@@ -37,6 +37,7 @@ COPY config /app/config
 COPY alembic /app/alembic
 COPY alembic.ini /app/alembic.ini
 COPY scripts /app/scripts
+COPY training /app/training
 
 RUN mkdir -p /app/artifacts && chown -R app:app /app
 

@@ -42,6 +42,20 @@ eval = [
     "numpy>=2.0",
     "matplotlib>=3.9",
 ]
+# Fine-tune pipeline. Installed ONLY on a RunPod pod — never in the
+# categorizer runtime container (would add ~4GB). See training/README.md.
+training = [
+    "unsloth>=2025.1",
+    "peft>=0.12",
+    "transformers>=4.45",
+    "trl>=0.12",
+    "datasets>=3.0",
+    "accelerate>=1.0",
+    "bitsandbytes>=0.44; platform_system != 'Darwin'",
+    "sentencepiece>=0.2",
+    "protobuf>=5.0",
+    "torch>=2.4",
+]
 
 [build-system]
 requires = ["setuptools>=75", "wheel"]
