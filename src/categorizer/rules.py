@@ -75,7 +75,8 @@ _MERCHANT_RULES: tuple[tuple[re.Pattern[str], str, str], ...] = (
     (re.compile(r"\bepm\b"), "hogar.servicios_publicos", "Factura EPM (energía, acueducto, gas, internet)."),
     (re.compile(r"\bcompensar\b"), "salud.eps_seguros", "Pago EPS Compensar."),
     (re.compile(r"\b(sura|sanitas|nueva\s+eps)\b"), "salud.eps_seguros", "EPS / seguro de salud."),
-    (re.compile(r"\b(claro|movistar|tigo|\betb\b)\b"), "hogar.internet_telefonia", "Operador de telefonía/internet."),
+    (re.compile(r"\b(claro|movistar|tigo|\betb\b|\bwom\b)\b"), "hogar.internet_telefonia", "Operador de telefonía/internet."),
+    (re.compile(r"\bpaquete\s+ptm\b|\brecarga\s+ptm\b"), "hogar.internet_telefonia", "Recarga/paquete prepago PTM (Claro)."),
     (re.compile(r"\bdrogueria\b|\bfarmatodo\b|\bcruz\s+verde\b|\blocatel\b|\bcopidrogas\b|\bdrogas\s+la\s+rebaja\b"), "salud.farmacia", "Farmacia / droguería."),
 
     # ── Transporte ──────────────────────────────────────────────────────

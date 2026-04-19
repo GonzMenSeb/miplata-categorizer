@@ -118,6 +118,12 @@ def test_internal_transfer_requires_counterparty() -> None:
         ("FARMATODO CC POBLADO", "salud.farmacia"),
         ("CRUZ VERDE 123", "salud.farmacia"),
         ("LOCATEL ENVIGADO", "salud.farmacia"),
+        # hogar.internet_telefonia — PTM prepaid packages (Claro) plus existing telco patterns.
+        ("COMPRA PAQUETE PTM CLARO", "hogar.internet_telefonia"),
+        ("COMPRA PAQUETE PTM", "hogar.internet_telefonia"),
+        ("RECARGA PTM CLARO", "hogar.internet_telefonia"),
+        ("MOVISTAR", "hogar.internet_telefonia"),
+        ("COMPRA PSE EN CLARO", "hogar.internet_telefonia"),
     ],
 )
 def test_rule_tier_emits_expected_category(description: str, expected_slug: str) -> None:
@@ -143,6 +149,8 @@ def test_rule_tier_emits_expected_category(description: str, expected_slug: str)
         "PAGO A FARMACEUTICA SA",
         # "droga" without the -ueria suffix is ambiguous.
         "COMPRA EN DROGA XYZ",
+        # "ptm" embedded in an unrelated token should not trigger the telco rule.
+        "COMPRA EN SEPTMBRE SAS",
     ],
 )
 def test_rule_tier_falls_through(description: str) -> None:
