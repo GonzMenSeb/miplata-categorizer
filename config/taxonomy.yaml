@@ -1,0 +1,549 @@
+version: 1
+language: es-CO
+description: >
+  Taxonomía jerárquica de categorías para transacciones financieras personales
+  en Colombia. Dos niveles (padre > hijo). `implemented: false` marca categorías
+  que existen como contrato pero aún no tienen reglas/ejemplos cargados ("carcass"
+  para implementar más adelante). Los ejemplos son descripciones reales observadas
+  en extractos de Bancolombia, Nequi y tarjetas de crédito.
+
+categories:
+
+  # ── INGRESOS ──────────────────────────────────────────────────────────────
+  - slug: ingresos
+    name: Ingresos
+    parent: null
+    implemented: true
+
+  - slug: ingresos.salario
+    name: Salario y honorarios
+    parent: ingresos
+    implemented: true
+    examples:
+      - "Pago recibido de SOLUCIONES"
+      - "NOMINA"
+      - "HONORARIOS"
+
+  - slug: ingresos.intereses_bancarios
+    name: Intereses bancarios
+    parent: ingresos
+    implemented: true
+    examples:
+      - "ABONO INTERESES AHORROS"
+      - "Pago de Intereses"
+
+  - slug: ingresos.reembolsos
+    name: Reembolsos y reversos
+    parent: ingresos
+    implemented: true
+    examples:
+      - "REVERSO COMPRA EN"
+      - "REVERSO COMPRA EN EBANX"
+      - "DEVOLUCION"
+
+  - slug: ingresos.dividendos_inversiones
+    name: Dividendos e inversiones
+    parent: ingresos
+    implemented: false   # carcass — sin ejemplos aún
+
+  - slug: ingresos.regalos
+    name: Regalos recibidos
+    parent: ingresos
+    implemented: false   # carcass
+
+  - slug: ingresos.otros
+    name: Otros ingresos
+    parent: ingresos
+    implemented: true
+
+  # ── COMIDA ────────────────────────────────────────────────────────────────
+  - slug: comida
+    name: Comida
+    parent: null
+    implemented: true
+
+  - slug: comida.restaurantes
+    name: Restaurantes
+    parent: comida
+    implemented: true
+    examples:
+      - "PAGO EN BUNUELOS ORIGINAL"
+      - "MI AREPA"
+      - "PAGO EN QR BRE-B: Toretos"
+      - "PV DOGGER EXITO POBLAD"
+
+  - slug: comida.domicilios
+    name: Domicilios
+    parent: comida
+    implemented: true
+    examples:
+      - "RAPPI COLOMBIA*DL"
+      - "DLO*DiDi Food CO Payin"
+
+  - slug: comida.mercado
+    name: Mercado
+    parent: comida
+    implemented: true
+    examples:
+      - "TIENDA D1 AUTOMOTRIZ"
+      - "EXITO"
+      - "CARULLA"
+      - "JUMBO"
+      - "OLIMPICA"
+      - "ARA"
+
+  - slug: comida.cafe_panaderia
+    name: Café y panadería
+    parent: comida
+    implemented: true
+    examples:
+      - "BOLD*Macchiato Caffe"
+      - "PASTELERIAS VALENTINOS SAS"
+      - "PAGO EN QR BRE-B: I love"
+
+  - slug: comida.snacks_dulces
+    name: Snacks y dulces
+    parent: comida
+    implemented: true
+    examples:
+      - "PAGO EN QR BRE-B: Mi Dulce"
+      - "HELADERIA"
+
+  # ── TRANSPORTE ────────────────────────────────────────────────────────────
+  - slug: transporte
+    name: Transporte
+    parent: null
+    implemented: true
+
+  - slug: transporte.taxi_rideshare
+    name: Taxi y rideshare
+    parent: transporte
+    implemented: true
+    examples:
+      - "DLO*Didi"
+      - "DiDi CO Ride"
+      - "DL*DIDI RIDES CO"
+      - "UBER"
+      - "CABIFY"
+      - "COMPRA EN DLO Didi"
+
+  - slug: transporte.transporte_publico
+    name: Transporte público
+    parent: transporte
+    implemented: true
+    examples:
+      - "Recarga Cívica"
+
+  - slug: transporte.combustible
+    name: Combustible
+    parent: transporte
+    implemented: false   # carcass — añadir ejemplos cuando aparezcan
+
+  - slug: transporte.parqueadero
+    name: Parqueadero
+    parent: transporte
+    implemented: false   # carcass
+
+  - slug: transporte.viajes
+    name: Viajes
+    parent: transporte
+    implemented: false   # carcass — aerolíneas, hoteles
+
+  - slug: transporte.mantenimiento_vehiculo
+    name: Mantenimiento vehículo
+    parent: transporte
+    implemented: false   # carcass
+
+  # ── HOGAR Y SERVICIOS ─────────────────────────────────────────────────────
+  - slug: hogar
+    name: Hogar y servicios
+    parent: null
+    implemented: true
+
+  - slug: hogar.servicios_publicos
+    name: Servicios públicos
+    parent: hogar
+    implemented: true
+    examples:
+      - "PAGO FACTURA EPM"
+      - "EPM"
+      - "EMPRESAS PUBLICAS"
+
+  - slug: hogar.internet_telefonia
+    name: Internet y telefonía
+    parent: hogar
+    implemented: true
+    examples:
+      - "CLARO"
+      - "MOVISTAR"
+      - "TIGO"
+      - "ETB"
+
+  - slug: hogar.arriendo
+    name: Arriendo
+    parent: hogar
+    implemented: false   # carcass — detectar por monto recurrente fijo
+
+  - slug: hogar.mantenimiento
+    name: Mantenimiento hogar
+    parent: hogar
+    implemented: false   # carcass
+
+  - slug: hogar.suministros
+    name: Suministros hogar
+    parent: hogar
+    implemented: false   # carcass
+
+  # ── SALUD ─────────────────────────────────────────────────────────────────
+  - slug: salud
+    name: Salud
+    parent: null
+    implemented: true
+
+  - slug: salud.eps_seguros
+    name: EPS y seguros salud
+    parent: salud
+    implemented: true
+    examples:
+      - "COMPRA PSE EN COMPENSAR"
+      - "SURA"
+      - "NUEVA EPS"
+      - "SANITAS"
+
+  - slug: salud.farmacia
+    name: Farmacia y medicina
+    parent: salud
+    implemented: false   # carcass
+    aliases_examples:
+      - "CRUZ VERDE"
+      - "FARMATODO"
+      - "DROGAS LA REBAJA"
+
+  - slug: salud.consulta_medica
+    name: Consulta médica
+    parent: salud
+    implemented: false   # carcass
+
+  - slug: salud.otros
+    name: Otros salud
+    parent: salud
+    implemented: true
+
+  # ── SUSCRIPCIONES Y DIGITAL ──────────────────────────────────────────────
+  - slug: suscripciones
+    name: Suscripciones y digital
+    parent: null
+    implemented: true
+
+  - slug: suscripciones.streaming
+    name: Streaming
+    parent: suscripciones
+    implemented: true
+    examples:
+      - "NETFLIX"
+      - "SPOTIFY"
+      - "DISNEY"
+      - "HBO"
+      - "PRIME VIDEO"
+
+  - slug: suscripciones.software_saas
+    name: Software y SaaS
+    parent: suscripciones
+    implemented: true
+    examples:
+      - "CLAUDE.AI SUBSCRIPTION"
+      - "DLO*GOOGLE Google One"
+      - "ADOBE"
+      - "GITHUB"
+
+  - slug: suscripciones.videojuegos
+    name: Videojuegos
+    parent: suscripciones
+    implemented: true
+    examples:
+      - "STEAMGAMES.COM"
+      - "COMPRA EN GOOGLE PLAY"
+      - "COMPRA EN GOOGLE"
+      - "PLAYSTATION"
+      - "XBOX"
+
+  - slug: suscripciones.apoyo_creadores
+    name: Apoyo a creadores
+    parent: suscripciones
+    implemented: true
+    examples:
+      - "COMPRA EN Patreon Membership"
+      - "PATREON"
+
+  - slug: suscripciones.cloud_web
+    name: Cloud y servicios web
+    parent: suscripciones
+    implemented: false   # carcass — AWS, GCP, DigitalOcean, etc.
+
+  # ── COMPRAS ───────────────────────────────────────────────────────────────
+  - slug: compras
+    name: Compras
+    parent: null
+    implemented: true
+
+  - slug: compras.ropa
+    name: Ropa y accesorios
+    parent: compras
+    implemented: false   # carcass
+
+  - slug: compras.electronica
+    name: Electrónica
+    parent: compras
+    implemented: false   # carcass
+
+  - slug: compras.tiendas_online
+    name: Tiendas online
+    parent: compras
+    implemented: true
+    examples:
+      - "COMPRA EN EBANX"
+      - "MERCADOLIBRE"
+      - "AMAZON"
+      - "SHOPEE"
+
+  - slug: compras.tiendas_fisicas
+    name: Tiendas físicas
+    parent: compras
+    implemented: false   # carcass
+
+  - slug: compras.regalos
+    name: Regalos
+    parent: compras
+    implemented: false   # carcass
+
+  # ── OCIO Y ENTRETENIMIENTO ────────────────────────────────────────────────
+  - slug: ocio
+    name: Ocio y entretenimiento
+    parent: null
+    implemented: true
+
+  - slug: ocio.cine_teatro
+    name: Cine y teatro
+    parent: ocio
+    implemented: true
+    examples:
+      - "CINEMARK"
+      - "CINE COLOMBIA"
+      - "CINEPOLIS"
+
+  - slug: ocio.eventos
+    name: Eventos y boletería
+    parent: ocio
+    implemented: false   # carcass
+
+  - slug: ocio.bares
+    name: Bares y vida nocturna
+    parent: ocio
+    implemented: false   # carcass
+
+  - slug: ocio.otros
+    name: Otros ocio
+    parent: ocio
+    implemented: true
+
+  # ── EDUCACIÓN ─────────────────────────────────────────────────────────────
+  - slug: educacion
+    name: Educación
+    parent: null
+    implemented: true
+
+  - slug: educacion.cursos
+    name: Cursos y certificaciones
+    parent: educacion
+    implemented: false   # carcass
+
+  - slug: educacion.libros
+    name: Libros y material
+    parent: educacion
+    implemented: false   # carcass
+
+  - slug: educacion.otros
+    name: Otros educación
+    parent: educacion
+    implemented: false   # carcass
+
+  # ── CUIDADO PERSONAL ─────────────────────────────────────────────────────
+  - slug: cuidado_personal
+    name: Cuidado personal
+    parent: null
+    implemented: true
+
+  - slug: cuidado_personal.peluqueria
+    name: Peluquería y barbería
+    parent: cuidado_personal
+    implemented: true
+    examples:
+      - "PAGO EN QR BRE-B: Barberia"
+      - "BARBERIA"
+      - "PELUQUERIA"
+
+  - slug: cuidado_personal.estetica
+    name: Estética
+    parent: cuidado_personal
+    implemented: false   # carcass
+
+  - slug: cuidado_personal.gimnasio
+    name: Gimnasio y deporte
+    parent: cuidado_personal
+    implemented: false   # carcass
+
+  # ── FINANZAS ──────────────────────────────────────────────────────────────
+  - slug: finanzas
+    name: Finanzas
+    parent: null
+    implemented: true
+
+  - slug: finanzas.comisiones_bancarias
+    name: Comisiones bancarias
+    parent: finanzas
+    implemented: true
+    examples:
+      - "CUOTA MANEJO TRJ DEB"
+      - "CUOTA MANEJO"
+      - "COMISION"
+
+  - slug: finanzas.impuestos
+    name: Impuestos financieros
+    parent: finanzas
+    implemented: true
+    examples:
+      - "IMPTO GOBIERNO 4X1000"
+      - "CXC IMPTO GOBIERNO 4X1000 MON"
+      - "GMF"
+      - "4X1000"
+
+  - slug: finanzas.intereses_tarjeta
+    name: Intereses de tarjeta
+    parent: finanzas
+    implemented: true
+    examples:
+      - "INTERESES CORRIENTES"
+
+  - slug: finanzas.mora
+    name: Mora
+    parent: finanzas
+    implemented: true
+    examples:
+      - "MORA TARJETA MASTER PESOS"
+      - "INTERESES MORA"
+      - "MORA"
+
+  - slug: finanzas.inversiones
+    name: Inversiones
+    parent: finanzas
+    implemented: false   # carcass
+
+  - slug: finanzas.prestamos
+    name: Préstamos recibidos/pagados
+    parent: finanzas
+    implemented: false   # carcass
+
+  # ── TRANSFERENCIAS A PERSONAS ─────────────────────────────────────────────
+  - slug: transferencias_personas
+    name: Transferencias a personas
+    parent: null
+    implemented: true
+
+  - slug: transferencias_personas.envio
+    name: Envío a contacto
+    parent: transferencias_personas
+    implemented: true
+    examples:
+      - "Para LUISA FERNANDA"
+      - "ENVIO CON BRE-B A: JOHN"
+      - "MAR*** ELI*** GON*** DIA***"   # anonymized third-party name on Nequi
+
+  - slug: transferencias_personas.recibido
+    name: Recibido de contacto
+    parent: transferencias_personas
+    implemented: true
+    examples:
+      - "De CRISTIAN DAVID CANO"
+      - "RECIBÍ A MI LLAVE DE: CRISTIAN"
+      - "RECIBI POR BRE-B DE:"
+
+  - slug: transferencias_personas.prestamo_a
+    name: Préstamo a persona
+    parent: transferencias_personas
+    implemented: false   # carcass — requiere intent del usuario
+
+  - slug: transferencias_personas.prestamo_de
+    name: Préstamo de persona
+    parent: transferencias_personas
+    implemented: false   # carcass
+
+  - slug: transferencias_personas.pago_compartido
+    name: Pago compartido
+    parent: transferencias_personas
+    implemented: false   # carcass — splitting bills
+
+  # ── MOVIMIENTOS ENTRE CUENTAS PROPIAS ─────────────────────────────────────
+  # La rama clave: se detecta principalmente por reglas deterministas que
+  # cruzan el lado del envío con el lado de la recepción usando la tabla
+  # `own_accounts`. El LLM no debería ser la primera línea aquí.
+  - slug: movimientos_internos
+    name: Movimientos entre cuentas propias
+    parent: null
+    implemented: true
+
+  - slug: movimientos_internos.entre_bancos
+    name: Transferencia entre bancos
+    parent: movimientos_internos
+    implemented: true
+    examples:
+      - "Recarga desde Bancolombia"
+      - "TRANSFERENCIA DESDE NEQUI"
+      - "TRANSFERENCIA A NEQUI"
+      - "RECARGA DESDE"
+
+  - slug: movimientos_internos.pago_tarjeta_propia
+    name: Pago de tarjeta propia
+    parent: movimientos_internos
+    implemented: true
+    examples:
+      - "PAGO SUC VIRT TC MASTER PESOS"
+      - "ABONO SUCURSAL VIRTUAL"
+      - "ABONO DEBITO POR MORA"
+
+  - slug: movimientos_internos.retiro_efectivo
+    name: Retiro de efectivo
+    parent: movimientos_internos
+    implemented: true
+    examples:
+      - "RETIRO EN CAJERO"
+
+  - slug: movimientos_internos.recarga_monedero
+    name: Recarga a monedero
+    parent: movimientos_internos
+    implemented: true
+    examples:
+      - "Recarga desde: COINK"
+      - "RECARGA DESDE"
+
+  - slug: movimientos_internos.ajuste_contable
+    name: Ajuste contable
+    parent: movimientos_internos
+    implemented: false   # carcass
+
+  # ── SIN CLASIFICAR ────────────────────────────────────────────────────────
+  - slug: sin_clasificar
+    name: Sin clasificar
+    parent: null
+    implemented: true
+
+  - slug: sin_clasificar.pendiente
+    name: Pendiente de revisión
+    parent: sin_clasificar
+    implemented: true
+    # Usada cuando la cascada no alcanza umbral de confianza y el usuario
+    # debe revisar manualmente (política "self-hosted only, reject over guess").
+
+  - slug: sin_clasificar.desconocido
+    name: Desconocido
+    parent: sin_clasificar
+    implemented: true
