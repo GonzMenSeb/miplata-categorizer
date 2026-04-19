@@ -1,0 +1,99 @@
+pipeline {
+    agent any
+
+    environment {
+        REGISTRY    = 'registry.web.vespiridion.org'
+        IMAGE       = "${REGISTRY}/miplata/categorizer"
+        VPS_HOST    = 'ubuntu@148.113.172.15'
+        VPS_APP_DIR = '/opt/categorizer'
+    }
+
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 20, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Lint & Typecheck') {
+            agent {
+                docker {
+                    image 'python:3.12-slim-bookworm'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    pip install --quiet --no-cache-dir '.[dev]'
+                    ruff check src tests
+                    mypy src || true
+                '''
+            }
+        }
+
+        stage('Test') {
+            agent {
+                docker {
+                    image 'python:3.12-slim-bookworm'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    pip install --quiet --no-cache-dir '.[dev]'
+                    pytest -v --junitxml=test-results.xml
+                '''
+            }
+        }
+
+        stage('Build & Push Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'zot-registry-creds',
+                    usernameVariable: 'REG_USER',
+                    passwordVariable: 'REG_PASS'
+                )]) {
+                    sh '''
+                        echo "$REG_PASS" | docker login $REGISTRY -u "$REG_USER" --password-stdin
+
+                        docker build \
+                            -t $IMAGE:${BUILD_NUMBER} \
+                            -t $IMAGE:latest \
+                            .
+
+                        docker push $IMAGE:${BUILD_NUMBER}
+                        docker push $IMAGE:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to VPS') {
+            steps {
+                sshagent(credentials: ['vps-ssh-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $VPS_HOST \
+                            "cd $VPS_APP_DIR && docker compose pull && docker compose up -d"
+                    '''
+                }
+            }
+        }
+
+        stage('DB Migrate') {
+            steps {
+                sshagent(credentials: ['vps-ssh-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $VPS_HOST \
+                            "cd $VPS_APP_DIR && docker compose run --rm api alembic upgrade head"
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: '**/test-results.xml'
+            sh 'docker logout $REGISTRY || true'
+        }
+    }
+}
