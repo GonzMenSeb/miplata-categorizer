@@ -76,6 +76,7 @@ _MERCHANT_RULES: tuple[tuple[re.Pattern[str], str, str], ...] = (
     (re.compile(r"\bcompensar\b"), "salud.eps_seguros", "Pago EPS Compensar."),
     (re.compile(r"\b(sura|sanitas|nueva\s+eps)\b"), "salud.eps_seguros", "EPS / seguro de salud."),
     (re.compile(r"\b(claro|movistar|tigo|\betb\b)\b"), "hogar.internet_telefonia", "Operador de telefonía/internet."),
+    (re.compile(r"\bdrogueria\b|\bfarmatodo\b|\bcruz\s+verde\b|\blocatel\b|\bcopidrogas\b|\bdrogas\s+la\s+rebaja\b"), "salud.farmacia", "Farmacia / droguería."),
 
     # ── Transporte ──────────────────────────────────────────────────────
     # `didi food` FIRST so the more-specific pattern wins over generic `didi`.

@@ -111,6 +111,13 @@ def test_internal_transfer_requires_counterparty() -> None:
         ("TIENDA D1 AUTOMOTRIZ", "comida.mercado"),
         ("PV DOGGER EXITO POBLAD", "comida.mercado"),
         ("Recarga Cívica", "transporte.transporte_publico"),
+        # salud.farmacia — generic "droguería" plus named chains.
+        ("COMPRA EN  DROGUERIA", "salud.farmacia"),
+        ("DROGUERIA ALEMANA 142", "salud.farmacia"),
+        ("PAGO QR Drogueria Moontiny", "salud.farmacia"),
+        ("FARMATODO CC POBLADO", "salud.farmacia"),
+        ("CRUZ VERDE 123", "salud.farmacia"),
+        ("LOCATEL ENVIGADO", "salud.farmacia"),
     ],
 )
 def test_rule_tier_emits_expected_category(description: str, expected_slug: str) -> None:
@@ -132,6 +139,10 @@ def test_rule_tier_emits_expected_category(description: str, expected_slug: str)
         "Para LUISA FERNANDA",
         # Bare QR payment with no tail.
         "PAGO EN QR BRE-B:",
+        # "farmacéutica" is a lab/manufacturer, not a pharmacy.
+        "PAGO A FARMACEUTICA SA",
+        # "droga" without the -ueria suffix is ambiguous.
+        "COMPRA EN DROGA XYZ",
     ],
 )
 def test_rule_tier_falls_through(description: str) -> None:
