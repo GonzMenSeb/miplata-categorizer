@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     llm_base_url: str = Field("http://llama-server:8080/v1", alias="LLM_BASE_URL")
     llm_model: str = Field("qwen3-4b-instruct-2507", alias="LLM_MODEL")
+    # 180s matches eval.py's client. Prior 60s was breached when a single
+    # cascade call traversed both /no_think and /think sequentially on Haswell.
+    llm_request_timeout: float = Field(180.0, alias="CATEGORIZER_LLM_REQUEST_TIMEOUT")
 
     api_token: str = Field(..., alias="CATEGORIZER_API_TOKEN")
 

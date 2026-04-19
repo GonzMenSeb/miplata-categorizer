@@ -12,6 +12,7 @@ import time
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .cascade import _resolve_account_slug
 from .cascade import categorize as run_cascade
 from .metrics import (
     categorize_latency_seconds,
@@ -112,10 +113,15 @@ async def label_endpoint(
     normalized = normalize(payload.transaction.description)
     embedding = (await embed_for_storage([normalized]))[0]
 
+    # Resolve miplata UUID → friendly slug so the FK on labeled_transactions
+    # is satisfied (labeled_transactions.account_slug → own_accounts.slug).
+    # No-op for already-friendly slugs.
+    resolved_account_slug = await _resolve_account_slug(session, payload.transaction.account_slug)
+
     session.add(
         LabeledTransaction(
             external_id=payload.transaction.external_id,
-            account_slug=payload.transaction.account_slug,
+            account_slug=resolved_account_slug,
             tx_date=payload.transaction.tx_date,
             amount=payload.transaction.amount,
             currency=payload.transaction.currency,
@@ -179,6 +185,23 @@ async def list_uncertain(
             }
             for r in rows
         ]
+    }
+
+
+@router.get("/v1/taxonomy")
+async def get_taxonomy(request: Request) -> dict[str, object]:
+    """Dump the in-memory taxonomy for external consumers (e.g. miplata's
+    correction UI). `emittable_slugs` is the leaves-only list the LLM may
+    actually emit; `by_parent` groups leaves under their root for UI pickers.
+    """
+    tax = _get_taxonomy(request)
+    by_parent: dict[str, dict[str, object]] = {}
+    for root in tax.roots():
+        children = [c.slug for c in tax.children_of(root.slug)] or [root.slug]
+        by_parent[root.slug] = {"name": root.name, "children": children}
+    return {
+        "emittable_slugs": list(tax.emittable_slugs),
+        "by_parent": by_parent,
     }
 
 

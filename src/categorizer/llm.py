@@ -41,7 +41,7 @@ def get_client() -> AsyncOpenAI:
         _client = AsyncOpenAI(
             base_url=str(settings.llm_base_url),
             api_key="llama-cpp-local",  # llama-server accepts anything; we auth via Traefik upstream
-            timeout=60.0,
+            timeout=settings.llm_request_timeout,
             max_retries=1,
         )
     return _client
