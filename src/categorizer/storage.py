@@ -23,6 +23,7 @@ from decimal import Decimal
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import JSON, Date, DateTime, ForeignKey, Index, Integer, Numeric, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -44,7 +45,7 @@ class OwnAccount(Base):
     display_name: Mapped[str] = mapped_column(String(128), nullable=False)
     institution: Mapped[str] = mapped_column(String(64), nullable=False)
     account_number_tail: Mapped[str | None] = mapped_column(String(32))
-    aliases: Mapped[list[str] | None] = mapped_column(JSON, default=list)
+    aliases: Mapped[list[str] | None] = mapped_column(JSONB, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utc_now)
 
 
@@ -137,7 +138,7 @@ class Merchant(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     canonical_name: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
-    aliases: Mapped[list[str] | None] = mapped_column(JSON, default=list)
+    aliases: Mapped[list[str] | None] = mapped_column(JSONB, default=list)
     mcc_hint: Mapped[str | None] = mapped_column(String(8))
     default_category_slug: Mapped[str | None] = mapped_column(String(96))
     source: Mapped[str] = mapped_column(String(16), default="seed")  # seed | learned
