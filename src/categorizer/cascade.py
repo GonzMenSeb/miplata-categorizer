@@ -136,7 +136,10 @@ def _build_llm_messages(
     system = (
         "Eres un categorizador de transacciones bancarias colombianas para una app "
         "de finanzas personales. Elige EXACTAMENTE un slug del enum provisto. "
-        "Privilegia las categorías en las que los ejemplos recuperados coinciden. "
+        "Los ejemplos del historial NO son etiquetas correctas para la transacción "
+        "actual; úsalos sólo si el comerciante o el patrón coincide realmente. "
+        "Si dudas, preferible usar `sin_clasificar.pendiente` a copiar un ejemplo "
+        "que no aplica. "
         "Si la transacción parece moverse entre cuentas propias del usuario (listadas abajo), "
         "usa la rama `movimientos_internos`. Si la transacción es genuinamente ambigua "
         "y ninguna herramienta ayuda, usa `sin_clasificar.pendiente` — NO adivines."
@@ -171,7 +174,9 @@ def _build_llm_messages(
         f"  fecha: {tx.tx_date.isoformat()}\n"
         f"  cuenta: {tx.account_slug}\n\n"
         f"Pista de comerciante (si se resolvió): {merchant_hint or 'ninguna'}\n\n"
-        f"Ejemplos del historial del usuario:\n{examples_block}\n\n"
+        f"Ejemplos RELACIONADOS del historial (sólo como pista; cada ejemplo "
+        f"tiene su propia categoría — NO asumas que la transacción actual "
+        f"pertenece a ninguna de ellas por defecto):\n{examples_block}\n\n"
         "Responde SÓLO con el JSON que cumple el schema."
     )
 
@@ -301,7 +306,7 @@ async def categorize(
     messages = _build_llm_messages(
         tx, normalized, retrieved_raw, merchant_hint, taxonomy, own_accounts
     )
-    allowed = list(taxonomy.implemented_slugs)
+    allowed = list(taxonomy.emittable_slugs)
     llm_resp = await llm_classify(
         messages=messages, allowed_slugs=allowed, tools=TOOL_SCHEMAS, thinking=False
     )

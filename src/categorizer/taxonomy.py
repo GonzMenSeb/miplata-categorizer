@@ -33,6 +33,14 @@ class Taxonomy:
         self._implemented_slugs: tuple[str, ...] = tuple(
             c.slug for c in categories if c.implemented
         )
+        # LLM output enum: only implemented LEAVES (no parent/root slugs).
+        # Parents are structural; emitting one would be meaningless for
+        # spending analytics and skews kNN training when labels flow back.
+        self._emittable_slugs: tuple[str, ...] = tuple(
+            c.slug
+            for c in categories
+            if c.implemented and self._children.get(c.slug) is None
+        )
 
     # ── Accessors ──────────────────────────────────────────────────────────
     @property
@@ -42,6 +50,11 @@ class Taxonomy:
     @property
     def implemented_slugs(self) -> tuple[str, ...]:
         return self._implemented_slugs
+
+    @property
+    def emittable_slugs(self) -> tuple[str, ...]:
+        """Slugs valid as LLM / cascade outputs: implemented leaves only."""
+        return self._emittable_slugs
 
     def get(self, slug: str) -> Category | None:
         return self._by_slug.get(slug)
