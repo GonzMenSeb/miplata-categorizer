@@ -109,12 +109,12 @@ def paired_bootstrap_ci(
     return lo, hi
 
 
-def _pairs(metrics: dict[str, Any]) -> list[tuple[str, str, bool]]:
-    out: list[tuple[str, str, bool]] = []
+def _pairs(metrics: dict[str, Any]) -> list[tuple[str, str]]:
+    out: list[tuple[str, str]] = []
     for p in metrics.get("predictions", []):
         if not p.get("ok"):
             continue
-        out.append((p["expected"], p["predicted"], p["predicted"] == p["expected"]))
+        out.append((p["expected"], p["predicted"]))
     return out
 
 

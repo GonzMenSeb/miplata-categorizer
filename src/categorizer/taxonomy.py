@@ -83,7 +83,16 @@ class Taxonomy:
     def is_valid(self, slug: str) -> bool:
         return slug in self._by_slug
 
-    def __contains__(self, slug: str) -> bool:
+    def __contains__(self, slug: str | None) -> bool:
+        """Nullable-friendly membership check.
+
+        Callers frequently test ``candidate_slug in taxonomy`` where the
+        candidate is ``str | None`` (LLM parsed output, merchant default
+        category). Accepting ``None`` and returning ``False`` for it keeps
+        those call-sites type-clean without per-site guards.
+        """
+        if slug is None:
+            return False
         return slug in self._by_slug
 
     def __len__(self) -> int:
