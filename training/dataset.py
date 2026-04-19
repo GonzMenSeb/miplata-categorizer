@@ -86,7 +86,9 @@ def fetch_rows(db_url: str) -> list[TrainingRow]:
     cascade got wrong in production). We pull corrections first, then fill
     with seed labels.
     """
-    engine = create_engine(db_url.replace("postgresql+psycopg://", "postgresql+psycopg2://"))
+    # psycopg v3 handles sync + async via the same driver; the runtime
+    # container only has psycopg v3 installed, so leave the URL scheme alone.
+    engine = create_engine(db_url)
     rows: list[TrainingRow] = []
     with engine.connect() as conn:
         result = conn.execute(
