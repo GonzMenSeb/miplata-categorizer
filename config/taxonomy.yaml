@@ -213,10 +213,14 @@ categories:
   - slug: salud.farmacia
     name: Farmacia y medicina
     parent: salud
-    implemented: false   # carcass
-    aliases_examples:
-      - "CRUZ VERDE"
+    implemented: true
+    examples:
+      - "COMPRA EN  DROGUERIA"
+      - "DROGUERIA ALEMANA 142"
+      - "PAGO QR Drogueria Moontiny"
       - "FARMATODO"
+      - "CRUZ VERDE"
+      - "LOCATEL"
       - "DROGAS LA REBAJA"
 
   - slug: salud.consulta_medica
@@ -289,7 +293,10 @@ categories:
   - slug: compras.ropa
     name: Ropa y accesorios
     parent: compras
-    implemented: false   # carcass
+    implemented: true
+    examples:
+      - "ARTURO CALLE"
+      - "COMPRA EN ARTURO CALLE"
 
   - slug: compras.electronica
     name: Electrónica
