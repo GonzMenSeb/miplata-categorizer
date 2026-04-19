@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import time
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .cascade import categorize as run_cascade
@@ -45,7 +45,7 @@ async def _get_session() -> AsyncSession:
         yield session
 
 
-def _get_taxonomy(request) -> Taxonomy:  # FastAPI `Request` typed loosely to avoid circular import
+def _get_taxonomy(request: Request) -> Taxonomy:
     tax = request.app.state.taxonomy
     if tax is None:
         raise HTTPException(503, "taxonomy not loaded")
@@ -66,7 +66,7 @@ async def metrics_endpoint() -> Response:
 @router.post("/v1/categorize", response_model=CategorizeResponse)
 async def categorize_endpoint(
     payload: CategorizeRequest,
-    request,
+    request: Request,
     session: AsyncSession = Depends(_get_session),  # noqa: B008 — FastAPI DI idiom; Depends is immutable
 ) -> CategorizeResponse:
     taxonomy: Taxonomy = request.app.state.taxonomy
