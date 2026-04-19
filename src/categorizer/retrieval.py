@@ -62,11 +62,12 @@ class EmbeddingModel:
             return cls._instance
 
     def embed(self, texts: list[str]) -> list[list[float]]:
-        # multilingual-e5 expects a "query: " prefix for the query side and
-        # "passage: " for the corpus side. For classification by similarity,
-        # symmetric ("query: " on both) works fine.
-        prefixed = [f"query: {t}" for t in texts]
-        return [list(v) for v in self._model.embed(prefixed)]
+        # e5-family models want a "query: " / "passage: " prefix; symmetric
+        # "query: " on both sides works for classification-by-similarity.
+        # Other multilingual encoders (MiniLM, mpnet) don't use that convention.
+        if "e5" in get_settings().embedding_model.lower():
+            texts = [f"query: {t}" for t in texts]
+        return [list(v) for v in self._model.embed(texts)]
 
 
 async def embed_for_storage(texts: list[str]) -> list[list[float]]:

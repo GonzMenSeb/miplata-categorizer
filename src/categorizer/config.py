@@ -34,7 +34,13 @@ class Settings(BaseSettings):
 
     # Name of the embedding model used by retrieval.py. fastembed fetches it
     # on first boot and caches under artifacts_dir/embedding_cache/.
-    embedding_model: str = Field("intfloat/multilingual-e5-small", alias="CATEGORIZER_EMBEDDING_MODEL")
+    # fastembed 0.8 dropped intfloat/multilingual-e5-small; MiniLM-L12-v2 is
+    # the 384-dim multilingual replacement with the same vector dimension, so
+    # no pgvector migration is needed.
+    embedding_model: str = Field(
+        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        alias="CATEGORIZER_EMBEDDING_MODEL",
+    )
     embedding_dim: int = Field(384, alias="CATEGORIZER_EMBEDDING_DIM")
 
 
