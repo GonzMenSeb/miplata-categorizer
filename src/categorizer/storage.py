@@ -20,10 +20,12 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from uuid import UUID
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import JSON, Date, DateTime, ForeignKey, Index, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -46,6 +48,7 @@ class OwnAccount(Base):
     institution: Mapped[str] = mapped_column(String(64), nullable=False)
     account_number_tail: Mapped[str | None] = mapped_column(String(32))
     aliases: Mapped[list[str] | None] = mapped_column(JSONB, default=list)
+    miplata_account_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utc_now)
 
 
