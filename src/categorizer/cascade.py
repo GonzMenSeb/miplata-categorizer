@@ -234,6 +234,10 @@ async def categorize(
             for n in neighbors
         ]
     except Exception as exc:  # pragma: no cover — retrieval is best-effort
+        # Roll back so a failed kNN query (SQL error, timeout, etc.) doesn't
+        # leave the session in an aborted-transaction state that poisons the
+        # later predictions-audit INSERT.
+        await session.rollback()
         log.warning("knn_failed", error=str(exc))
         neighbors = []
 

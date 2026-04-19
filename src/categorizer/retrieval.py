@@ -90,28 +90,25 @@ async def knn(
     vector = EmbeddingModel.instance().embed([normalized_query])[0]
 
     # pgvector's <=> is cosine DISTANCE (0 = identical). We convert to similarity.
-    # SQLAlchemy 2.0 async: use core select with raw vector operator.
+    # Branch on account_slug to avoid `:name::type` casts, which SQLAlchemy's
+    # text() parser treats as literal (not a bindparam) and forwards to Postgres
+    # unbound, causing a syntax error.
+    account_filter = "AND account_slug = :account_slug" if account_slug else ""
     sql = text(
-        """
+        f"""
         SELECT external_id, normalized_description, category_slug,
                1 - (embedding <=> (:q)::vector) AS similarity
         FROM labeled_transactions
         WHERE embedding IS NOT NULL
-          AND (:account_slug::text IS NULL OR account_slug = :account_slug)
+          {account_filter}
         ORDER BY embedding <=> (:q)::vector
         LIMIT :k
         """
     )
-    rows = (
-        await session.execute(
-            sql,
-            {
-                "q": vector,
-                "k": k,
-                "account_slug": account_slug,
-            },
-        )
-    ).all()
+    params: dict[str, object] = {"q": vector, "k": k}
+    if account_slug:
+        params["account_slug"] = account_slug
+    rows = (await session.execute(sql, params)).all()
 
     return [
         RetrievedNeighbor(
