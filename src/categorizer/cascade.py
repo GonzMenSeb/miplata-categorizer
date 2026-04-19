@@ -186,6 +186,23 @@ def _build_llm_messages(
     ]
 
 
+def _own_account_text_match(
+    normalized: str, raw: str, own_accounts: list[OwnAccountRef]
+) -> bool:
+    """True iff the description plausibly names one of the user's own accounts.
+
+    Used as a safety belt for LLM-proposed ``movimientos_internos.*`` — we
+    never trust that branch without textual or paired-tx evidence.
+    """
+    lowered_raw = raw.lower()
+    for acct in own_accounts:
+        tokens = {acct.slug.lower(), acct.institution.lower(), *[a.lower() for a in acct.aliases]}
+        for tok in tokens:
+            if tok and (tok in normalized or tok in lowered_raw):
+                return True
+    return False
+
+
 async def categorize(
     session: AsyncSession,
     tx: TransactionIn,
@@ -198,6 +215,7 @@ async def categorize(
     trace.append({"tier": "normalize", "output": normalized})
 
     own_accounts = await _load_own_accounts(session)
+    paired_hit: tuple[str, float, str] | None = None
 
     # ── Tier 3: deterministic rules (text-based) ────────────────────────
     rule_hit = rules.match(tx, normalized, own_accounts)
@@ -215,6 +233,7 @@ async def categorize(
 
     # ── Tier 4: paired-tx internal transfer ─────────────────────────────
     paired = await _paired_internal_transfer(session, tx)
+    paired_hit = paired
     if paired is not None:
         slug, conf, reason = paired
         if conf >= settings.rule_min_confidence - 0.05:   # slightly more lenient: DB evidence
@@ -350,10 +369,29 @@ async def categorize(
     conf = float(parsed.get("confidence", 0.0))
     reasoning = str(parsed.get("reasoning", "") or "")
 
+    # Postcondition reject-gate: `movimientos_internos.*` is the one branch
+    # where we never trust the LLM without corroborating evidence. Require
+    # either a paired-tx hit (tier 4) or a text match against own_accounts.
+    def _internal_transfer_unverified(candidate: str | None) -> bool:
+        return bool(
+            candidate
+            and candidate.startswith("movimientos_internos.")
+            and paired_hit is None
+            and not _own_account_text_match(normalized, tx.description, own_accounts)
+        )
+
+    notink_blocked = _internal_transfer_unverified(slug)
+    if notink_blocked:
+        trace.append(
+            {"tier": "llm_nothink_reject_gate", "slug": slug, "confidence": conf,
+             "reason": "LLM proposed internal transfer but no own_account match"}
+        )
+
     if (
         slug
         and slug in taxonomy
         and conf >= settings.llm_min_confidence
+        and not notink_blocked
     ):
         return CategorizationResult(
             category_slug=slug,
@@ -365,7 +403,10 @@ async def categorize(
         )
 
     # ── Tier 8: LLM /think (uncertainty branch) ────────────────────────
-    if conf < settings.think_trigger_confidence:
+    # Also trigger /think when the no-think tier was blocked by the reject-gate,
+    # even if its raw confidence was ≥ think_trigger — the blocked prediction
+    # carries no signal about whether the tx is genuinely uncertain.
+    if conf < settings.think_trigger_confidence or notink_blocked:
         think_resp = await llm_classify(
             messages=messages, allowed_slugs=allowed, tools=None, thinking=True,
         )
@@ -374,6 +415,23 @@ async def categorize(
         tslug = tparsed.get("category_slug")
         tconf = float(tparsed.get("confidence", 0.0))
         treas = str(tparsed.get("reasoning", "") or "")
+        think_blocked = _internal_transfer_unverified(tslug)
+        if think_blocked:
+            trace.append(
+                {"tier": "llm_think_reject_gate", "slug": tslug, "confidence": tconf,
+                 "reason": "LLM proposed internal transfer but no own_account match; forced reject"}
+            )
+            return CategorizationResult(
+                category_slug="sin_clasificar.pendiente",
+                confidence=0.0,
+                source="llm_think",
+                reasoning=(
+                    "LLM proposed internal transfer but no own_account match; "
+                    "cannot verify — rejecting."
+                ),
+                retrieved_examples=retrieved_raw,
+                tier_trace=trace,
+            )
         if tslug and tslug in taxonomy and tconf >= settings.llm_min_confidence:
             return CategorizationResult(
                 category_slug=tslug,
@@ -388,7 +446,7 @@ async def categorize(
     trace.append({"tier": "reject", "reason": "no tier met its confidence threshold"})
     return CategorizationResult(
         category_slug="sin_clasificar.pendiente",
-        confidence=conf if conf > 0 else 0.0,
+        confidence=conf if conf > 0 and not notink_blocked else 0.0,
         source="llm_notink",
         reasoning="Ninguna tier alcanzó el umbral de confianza; la transacción queda pendiente de revisión.",
         retrieved_examples=retrieved_raw,
