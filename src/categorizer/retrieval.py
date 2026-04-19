@@ -1,8 +1,11 @@
 """Retrieval tier: kNN over the user's labeled history via pgvector.
 
-Uses intfloat/multilingual-e5-small through fastembed (ONNX-int8) for CPU
-efficiency. The model is cached under `artifacts_dir/embedding_cache/` and
-loaded lazily the first time an embedding is requested.
+Uses sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 through
+fastembed (ONNX-int8) for CPU efficiency. The model is cached under
+`artifacts_dir/embedding_cache/` and loaded lazily the first time an
+embedding is requested. (Originally intfloat/multilingual-e5-small — swapped
+because fastembed 0.8 dropped that model from its registry. Same 384-dim
+vector, so no pgvector migration was required.)
 
 We don't maintain a separate FAISS index — pgvector's IVFFlat on the
 `labeled_transactions.embedding` column is plenty at our scale (<100k rows).

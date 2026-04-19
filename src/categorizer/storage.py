@@ -66,7 +66,7 @@ class LabeledTransaction(Base):
     category_slug: Mapped[str] = mapped_column(String(96), nullable=False)
     source: Mapped[str] = mapped_column(String(16), default="user")  # user | seed
     embedding: Mapped[list[float] | None] = mapped_column(
-        # Dimension comes from config; default 384 for multilingual-e5-small.
+        # Dimension comes from config; default 384 for paraphrase-multilingual-MiniLM-L12-v2.
         Vector(get_settings().embedding_dim)
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utc_now)

@@ -28,7 +28,7 @@
 │  Tier 3. rules.match()       — deterministic regex + own_accounts cross-ref  │
 │  Tier 4. paired-tx check     — DB scan for opposite-sign same-amount tx      │
 │  Tier 5. merchant lookup     — SQLite-like exact/substring alias match       │
-│  Tier 6. pgvector kNN        — fastembed multilingual-e5-small, top-k=8      │
+│  Tier 6. pgvector kNN        — fastembed MiniLM-L12-v2 multilingual, top-k=8 │
 │  Tier 7. LLM /no_think       — Qwen3-4B via llama-server (Hermes tool call)  │
 │  Tier 8. LLM /think          — Qwen3-4B-Thinking re-pass on low confidence   │
 │  Tier 9. reject              — sin_clasificar.pendiente (no API fallback)    │
@@ -64,7 +64,7 @@ Tier split targets, by expected traffic share:
 | Web framework | FastAPI + Uvicorn (1 worker, threadpool) | Async, OpenAPI for free, trivial bearer-guard via Traefik middleware upstream |
 | DB ORM | SQLAlchemy 2.0 async + psycopg (v3, binary) | First-class async, clean typed mappers, pgvector integration via `pgvector-python` |
 | Migrations | Alembic, `async` env, data migration for seeding | Standard + schema + data in one tool |
-| Embeddings | `fastembed` (ONNX int8) w/ `intfloat/multilingual-e5-small` | Multilingual covering Spanish, 120 MB int8, ~30–60 ms/query on Haswell |
+| Embeddings | `fastembed` (ONNX int8) w/ `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | Multilingual covering Spanish, 384-dim, ~120 MB int8, ~30–60 ms/query on Haswell. Originally e5-small; swapped because fastembed 0.8 dropped e5-small from its model registry (see context.md §4.3). Same vector dimension → no pgvector migration needed. |
 | Vector search | pgvector w/ `ivfflat (vector_cosine_ops) WITH (lists=100)` | Postgres stays single source of truth; flat-ish perf at current scale, scales fine to 100k |
 | LLM runtime | llama.cpp `llama-server` (Docker `ghcr.io/ggml-org/llama.cpp:server`) | Fastest CPU path, native JSON-schema grammar, OpenAI-compat endpoint |
 | LLM model | `Qwen3-4B-Instruct-2507` Q5_K_M (+ `Qwen3-4B-Thinking-2507` at tier 4) | Apache-2.0, strong Spanish + BFCL; see context.md §4.3 |
@@ -108,7 +108,7 @@ Tier split targets, by expected traffic share:
 
 1. User (or the `git push` webhook) triggers the `categorizer-deploy` Jenkins job.
 2. Stages: `Lint & Typecheck` (ruff) → `Test` (pytest) → `Build & Push Image` (docker build + push to Zot) → `Deploy to VPS` (SSH + `docker compose pull && docker compose up -d`) → `DB Migrate` (SSH + `docker compose run --rm api alembic upgrade head`).
-3. DB Migrate runs both `0001_initial` and `0002_seed_own_accounts_and_merchants`. Post-migration the service is live with 6 own_accounts and 42 merchants pre-populated.
+3. DB Migrate runs `0001_initial`, `0002_seed_own_accounts_and_merchants`, and `0003_jsonb_aliases` (the last one converts `aliases` columns from JSON to JSONB so the `?` key-exists operator used by merchant lookup works). Post-migration the service is live with 6 own_accounts and 43 merchants pre-populated.
 4. The retrieval index is still empty at this point — population happens in §4.5.
 
 ## 4. Cascade tier detail
@@ -193,7 +193,7 @@ Tier split targets, by expected traffic share:
 | `normalize.py` | ✅ | 40+ regex patterns, Colombian-specific. Ñ preserved. |
 | `rules.py` | ✅ | Covers ~20 determinable patterns + internal-transfer-by-text. |
 | `features.py` | ✅ | Temporal + amount buckets + recurring detection (pure helper). |
-| `merchant.py` | 🟡 partial | Exact + substring match on seeded dict (15 entries in file + 42 seeded via migration). Fuzzy-match carcass documented. |
+| `merchant.py` | 🟡 partial | Exact + substring match on seeded dict (15 entries in file + 43 seeded via migration). Fuzzy-match carcass documented. |
 | `retrieval.py` | ✅ | pgvector kNN + distance-weighted voting. Requires seeded embeddings to be useful. |
 | `llm.py` | ✅ | `AsyncOpenAI` against llama-server, JSON-schema grammar, `/think` toggle. |
 | `tools.py` | ✅ | 4 tools, real DB-backed dispatch for all 4. |
@@ -203,7 +203,8 @@ Tier split targets, by expected traffic share:
 | `metrics.py` | ✅ | 5 Prometheus series, bounded cardinality. |
 | `config.py` / `logging_setup.py` / `main.py` | ✅ | pydantic-settings, structlog JSON, FastAPI lifespan loads taxonomy. |
 | `alembic/versions/0001_initial.py` | ✅ | Full schema + `CREATE EXTENSION vector`. |
-| `alembic/versions/0002_seed_own_accounts_and_merchants.py` | ✅ | 6 own_accounts + 42 merchants, idempotent upsert. |
+| `alembic/versions/0002_seed_own_accounts_and_merchants.py` | ✅ | 6 own_accounts + 43 merchants, idempotent upsert. |
+| `alembic/versions/0003_jsonb_aliases.py` | ✅ | Converts `merchants.aliases` + `own_accounts.aliases` from JSON to JSONB so the `?` key-exists operator merchant lookup relies on actually works. |
 | `config/taxonomy.yaml` | ✅ | 13 parents × 54 children, `implemented: false` on 21 carcass children. |
 | `config/gold_set_v1.jsonl` | ✅ | 50 hand-labeled transactions from real Bancolombia + Nequi strings. |
 | `scripts/seed_gold_set.py` | ✅ | Idempotent POST-each-row to `/v1/label`. Not yet run against prod. |
@@ -250,7 +251,7 @@ Tier split targets, by expected traffic share:
 | `CATEGORIZER_THINK_TRIGGER_CONFIDENCE` | env | `0.60` | Below this, escalate to /think. |
 | `CATEGORIZER_TAXONOMY_PATH` | env | `/app/config/taxonomy.yaml` | Where the YAML lives in the container. |
 | `CATEGORIZER_ARTIFACTS_DIR` | env | `/app/artifacts` | Embedding cache + any future persisted state. |
-| `CATEGORIZER_EMBEDDING_MODEL` | env | `intfloat/multilingual-e5-small` | fastembed model name. |
+| `CATEGORIZER_EMBEDDING_MODEL` | env | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | fastembed model name. Was `intfloat/multilingual-e5-small`; changed because fastembed 0.8 dropped that model. Same 384-dim vector so no pgvector schema change needed. |
 | `CATEGORIZER_EMBEDDING_DIM` | env | `384` | Must match model; vector column is `Vector(dim)`. |
 
 ### 6.2 llama-server env (role `llm_inference`)

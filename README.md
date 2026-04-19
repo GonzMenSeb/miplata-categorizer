@@ -16,7 +16,7 @@ raw tx ─► 1. normalize  (Colombian regex: PSE, POS, COMPRA, NEQUI*, DVP, *, 
               • internal transfers between user's own accounts (pair matching)
               • GMF 4x1000 / cuota manejo / mora / intereses
               • Didi / Rappi / EPM / Cívica / Claude / Steam / etc.
-       ─► 4. kNN over user's labeled history via pgvector + multilingual-e5-small
+       ─► 4. kNN over user's labeled history via pgvector + paraphrase-multilingual-MiniLM-L12-v2
               ≈ 30% of volume, confidence ≥ 0.85 with margin ≥ 0.05
        ─► 5. Qwen3-4B-Instruct-2507 /no_think via llama-server + tool use
               ≈ 25% of volume

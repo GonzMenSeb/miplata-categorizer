@@ -18,7 +18,8 @@ dependencies = [
     "structlog>=24.4",
     "pyyaml>=6.0",
     "python-dateutil>=2.9",
-    # Embedding runtime. fastembed is ONNX-optimized for CPU and ships int8 multilingual-e5.
+    # Embedding runtime. fastembed is ONNX-optimized for CPU; we use
+    # paraphrase-multilingual-MiniLM-L12-v2 (384-dim, int8).
     "fastembed>=0.4",
 ]
 

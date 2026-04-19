@@ -60,7 +60,7 @@ Research converges on the same answer for this problem shape: a 4-tier cascade. 
 | Tier | Target share | Tech | Typical latency |
 |---|---|---|---|
 | 1. Deterministic rules | ~40% | regex over normalized text + paired-tx check against own_accounts | 5 ms |
-| 2. kNN retrieval | ~30% | pgvector + multilingual-e5-small embedding | 50 ms |
+| 2. kNN retrieval | ~30% | pgvector + paraphrase-multilingual-MiniLM-L12-v2 embedding | 50 ms |
 | 3. Small LLM with tools | ~25% | Qwen3-4B-Instruct-2507 Q5_K_M via llama.cpp + Hermes tool parsing | 7–10 s |
 | 4. Small LLM in /think mode | ~5% | Qwen3-4B-Thinking-2507 re-pass when tier 3 confidence is low | 15–25 s |
 
@@ -72,7 +72,7 @@ Anything below threshold after tier 4 is rejected to `sin_clasificar.pendiente` 
 - **Q5_K_M quantization**, not Q4_K_M. RAM fits comfortably (~3 GB weights + 0.5 GB KV at 2K ctx), perplexity regression negligible, and Haswell AVX2 doesn't gain meaningfully from going smaller.
 - **llama.cpp's `llama-server`** as the runtime, not Ollama. ~20% faster than Ollama on CPU for single-user workloads, native JSON-schema grammar (the model *cannot* emit an invalid category slug), and KV-cache reuse across the same system prompt.
 - **pgvector in a dedicated Postgres** (not shared with miplata's). The categorizer owns its data end-to-end — own_accounts, labels, merchants, predictions, corrections. Reused embeddings live in the same row as the labels that produced them. Backups are a single `pg_dump`.
-- **intfloat/multilingual-e5-small via fastembed (ONNX int8)** for embeddings. 118M params, 384-dim, ~120 MB int8, proven Spanish retrieval quality, 30–60 ms per query on Haswell.
+- **sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 via fastembed (ONNX int8)** for embeddings. ~118M params, 384-dim, ~120 MB int8, widely-used multilingual encoder (50+ languages including Spanish), 30–60 ms per query on Haswell. MTEB retrieval scores are modestly below e5-small, but good enough for short-text nearest-neighbor voting over a Spanish bank-statement corpus. **Swap rationale:** fastembed 0.8 dropped `intfloat/multilingual-e5-small` from its supported-model registry, so we moved to MiniLM-L12-v2 which stays supported and keeps the same 384-dim vector (no pgvector schema migration needed). MiniLM doesn't use the e5 `query: ` / `passage: ` prefix convention — `retrieval.py` branches on the model name so older e5 deploys still behave correctly if `CATEGORIZER_EMBEDDING_MODEL` is overridden back.
 - **Python 3.12 + FastAPI + SQLAlchemy 2.0 async** for the service. Standard Python stack, plays nicely with pgvector, Pydantic v2 gives us strict request/response shapes, Alembic handles migrations including data seeding.
 
 ### 4.4 The first-class concept we added: *movimientos entre cuentas propias*
@@ -225,14 +225,16 @@ The user has a persistent memory file at `~/.claude/projects/-home-sebastian-ver
 
 The categorizer API token is embedded in the Traefik middleware labels at container-create time. Rotating the token therefore requires re-rendering the compose file and `docker compose up -d` to recreate the container. The same is true for any other `apitokenmiddleware` tokens in this infra — there's no hot-reload path.
 
+Note on failed-auth response: the Aetherinox `apitokenmiddleware` plugin responds with **HTTP 403 Forbidden** (not 401) when the bearer is missing or wrong — verified against the deployed categorizer. Clients that distinguish between unauthenticated and unauthorized should treat 403 from this endpoint as "missing/invalid token", not "valid token but no permission".
+
 ### 5.14 LLM tuning decisions specific to this hardware
 
 - `LLAMA_ARG_THREADS=5` — memory-bandwidth saturation on dual-channel DDR4 happens at ~5 threads (confirmed in llama.cpp discussion #3167). Past 5 threads, gen tok/s plateaus.
 - `LLAMA_ARG_THREADS_BATCH=6` — prompt eval IS compute-bound, so we use all 6 cores for batch.
 - `--cpuset "0-4"` on the container — pins 5 cores, leaves core 5 for the rest of the host (miplata, monitoring, Traefik, PowerDNS). Without this, llama-server would starve them.
 - `LLAMA_ARG_CACHE_TYPE_K=q8_0 LLAMA_ARG_CACHE_TYPE_V=q8_0` — quantized KV cache saves ~400 MB at 2K context with <5% latency cost (at our context size). **Don't enable on Gemma** (Ollama issue #9683) — OK on Qwen.
-- `LLAMA_ARG_CTX_SIZE=2048` — bigger is wasted budget for ~500-token system prompts + ~40-token outputs. Bigger contexts would force more KV RAM.
-- `LLAMA_ARG_N_PARALLEL=2` — 2 slots for concurrent requests, useful when miplata ingests a multi-tx statement.
+- `LLAMA_ARG_CTX_SIZE=4096` — total context across all parallel slots. With `LLAMA_ARG_N_PARALLEL=2` llama.cpp divides this evenly, giving **2048 tokens per slot**. The /no_think prompt lands at ~1180 tokens after the tool schemas and system preamble are rendered, so 2048/slot leaves ~800 tokens of headroom for tool-call output + final answer. Was originally 2048 total (1024/slot) which truncated prompts on the longest tx descriptions — bumping to 4096 total fixed it without meaningfully increasing KV RAM at our low concurrency.
+- `LLAMA_ARG_N_PARALLEL=2` — 2 slots for concurrent requests, useful when miplata ingests a multi-tx statement. Combined with the CTX_SIZE above: 4096 total / 2 slots = 2048 per slot.
 - `LLAMA_ARG_ENDPOINT_SLOTS=0` + `--no-slots` + `--no-webui` — locks down the /slots debug endpoint and disables the web UI. Belt-and-suspenders because the env-var behavior for `false` on llama.cpp is inconsistent across versions.
 
 ### 5.15 Taxonomy design notes
@@ -281,12 +283,16 @@ Assume zero memory of this session. To get oriented in under 10 minutes:
    ```
    - Expect: `llama-server` healthy.
    - May or may not be running: `categorizer-api`, `categorizer-postgres` (depends on whether Jenkins's first categorizer-deploy build succeeded by now).
-5. **If the Jenkins `categorizer-deploy` build has landed**, the categorizer API is live at `https://categorizer.web.vespiridion.org/healthz` (with `Authorization: Bearer <vault_categorizer_api_token>`). The Alembic `upgrade head` step runs as a Jenkinsfile stage and seeds `own_accounts` + `merchants` (migration `0002`).
+5. **If the Jenkins `categorizer-deploy` build has landed**, the categorizer API is live at `https://categorizer.web.vespiridion.org/healthz` (with `Authorization: Bearer <vault_categorizer_api_token>`). The Alembic `upgrade head` step runs as a Jenkinsfile stage and applies migrations through `0003` (initial schema in `0001`, own_accounts + merchants seed in `0002`, and `0003_jsonb_aliases` which converts the `aliases` columns from JSON to JSONB so the `?` key-exists operator used by `merchant.lookup` actually works).
 6. **Seed the gold set** (once the API is up):
    ```bash
    cd /home/sebastian/versioned-code/miplata-categorizer
-   ANSIBLE_VAULT_PASSWORD_FILE=../vps-infrastructure/.vault_pass \
-     ansible-vault view ../vps-infrastructure/vault.yml | grep vault_categorizer_api_token
+   # IMPORTANT: vault_categorizer_api_token lives in the ai-model worktree's
+   # vault.yml, NOT in vps-infrastructure/vault.yml on `main`. Until the
+   # worktree commit is merged to main, read the token from the worktree:
+   ANSIBLE_VAULT_PASSWORD_FILE=../vps-infrastructure/.claude/worktrees/ai-model/.vault_pass \
+     ansible-vault view ../vps-infrastructure/.claude/worktrees/ai-model/vault.yml \
+     | grep vault_categorizer_api_token
    # then:
    CATEGORIZER_BASE_URL=https://categorizer.web.vespiridion.org \
      CATEGORIZER_API_TOKEN=<token from above> \
@@ -336,7 +342,7 @@ These are the authoritative sources the current decisions trace back to. Read th
 
 ### 5.22 Things that would break the system subtly
 
-- **Changing the `embedding_model` setting** after labeled tx exist. The stored vectors are model-specific; switching would require re-embedding the corpus (simple script but not automated).
+- **Changing the `embedding_model` setting** after labeled tx exist. The stored vectors are model-specific (MiniLM-L12-v2's 384-dim space is not interchangeable with e5-small's, despite the shared dimension); switching would require re-embedding the corpus (simple script but not automated). If you upgrade fastembed and a newer model becomes available, plan a re-embed, not just a config flip.
 - **Reordering category enum in `taxonomy.yaml`** — not functionally harmful (slugs are still slugs), but any downstream dashboards aggregating by parent would be cleaner if parent ordering is stable.
 - **Dropping the `populate_by_name=True` on `TransactionIn`** — the miplata client sends `date` (alias) and we parse as `tx_date`; removing would break request parsing.
 - **Running two llama-server instances sharing the same model file** — not a problem for mmap but requires tuning cpuset so they don't step on each other. We don't do this currently.
