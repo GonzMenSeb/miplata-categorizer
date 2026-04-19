@@ -8,7 +8,6 @@ only inside the Docker network).
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +17,8 @@ from .metrics import (
     categorize_latency_seconds,
     corrections_total,
     predictions_total,
+)
+from .metrics import (
     render as render_metrics,
 )
 from .retrieval import embed_for_storage
@@ -34,10 +35,6 @@ from .storage import (
     get_session_factory,
 )
 from .taxonomy import Taxonomy
-
-if TYPE_CHECKING:
-    from fastapi import FastAPI
-
 
 router = APIRouter()
 
@@ -69,8 +66,8 @@ async def metrics_endpoint() -> Response:
 @router.post("/v1/categorize", response_model=CategorizeResponse)
 async def categorize_endpoint(
     payload: CategorizeRequest,
-    request,  # noqa: ARG001 — injected by FastAPI for taxonomy access
-    session: AsyncSession = Depends(_get_session),
+    request,
+    session: AsyncSession = Depends(_get_session),  # noqa: B008 — FastAPI DI idiom; Depends is immutable
 ) -> CategorizeResponse:
     taxonomy: Taxonomy = request.app.state.taxonomy
     t0 = time.perf_counter()
@@ -105,7 +102,7 @@ async def categorize_endpoint(
 @router.post("/v1/label")
 async def label_endpoint(
     payload: LabelIn,
-    session: AsyncSession = Depends(_get_session),
+    session: AsyncSession = Depends(_get_session),  # noqa: B008 — FastAPI DI idiom; Depends is immutable
 ) -> dict[str, object]:
     """Ingest a user-confirmed label. Appends to labeled_transactions with an
     embedding, and records a `corrections` row if the user is overriding a
@@ -150,7 +147,7 @@ async def label_endpoint(
 @router.get("/v1/uncertain")
 async def list_uncertain(
     limit: int = 20,
-    session: AsyncSession = Depends(_get_session),
+    session: AsyncSession = Depends(_get_session),  # noqa: B008 — FastAPI DI idiom; Depends is immutable
 ) -> dict[str, list[dict[str, object]]]:
     """Return the N most recent predictions that rejected or came in below
     the LLM confidence threshold. Powers the active-learning review UI."""
@@ -186,7 +183,9 @@ async def list_uncertain(
 
 
 @router.get("/v1/own-accounts")
-async def list_own_accounts(session: AsyncSession = Depends(_get_session)) -> dict[str, list[dict]]:
+async def list_own_accounts(
+    session: AsyncSession = Depends(_get_session),  # noqa: B008 — FastAPI DI idiom; Depends is immutable
+) -> dict[str, list[dict]]:
     from sqlalchemy import select
 
     rows = (await session.scalars(select(OwnAccount))).all()

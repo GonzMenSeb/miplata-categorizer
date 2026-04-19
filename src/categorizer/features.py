@@ -7,7 +7,7 @@ pure and easy to test.
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 from statistics import median
 from typing import TYPE_CHECKING
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 def amount_bucket(amount: Decimal) -> str:
     """Coarse log-ish buckets in COP. Tuned to Colombian tx scale: small snacks
-    start around $2k, restaurants $15–60k, utilities $50–300k, rent $1–3M."""
+    start around $2k, restaurants $15-60k, utilities $50-300k, rent $1-3M."""
     a = abs(amount)
     if a < Decimal("2000"):
         return "tiny"

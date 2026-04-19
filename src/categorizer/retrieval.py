@@ -20,7 +20,6 @@ from sqlalchemy import func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import get_settings
-from .storage import LabeledTransaction
 
 if TYPE_CHECKING:
     from fastembed import TextEmbedding
@@ -41,12 +40,12 @@ class EmbeddingModel:
     We don't want to pay its import cost in unit tests that don't touch retrieval.
     """
 
-    _instance: "EmbeddingModel | None" = None
+    _instance: EmbeddingModel | None = None
     _lock = Lock()
 
     def __init__(self) -> None:
         settings = get_settings()
-        from fastembed import TextEmbedding  # noqa: PLC0415  (deferred — see docstring)
+        from fastembed import TextEmbedding
 
         cache_dir = settings.artifacts_dir / "embedding_cache"
         cache_dir.mkdir(parents=True, exist_ok=True)
@@ -56,7 +55,7 @@ class EmbeddingModel:
         )
 
     @classmethod
-    def instance(cls) -> "EmbeddingModel":
+    def instance(cls) -> EmbeddingModel:
         with cls._lock:
             if cls._instance is None:
                 cls._instance = cls()
@@ -90,9 +89,6 @@ async def knn(
     vector = EmbeddingModel.instance().embed([normalized_query])[0]
 
     # pgvector's <=> is cosine DISTANCE (0 = identical). We convert to similarity.
-    stmt = (
-        session.query(LabeledTransaction) if hasattr(session, "query") else None
-    )
     # SQLAlchemy 2.0 async: use core select with raw vector operator.
     sql = text(
         """
@@ -152,4 +148,4 @@ def vote(neighbors: list[RetrievedNeighbor]) -> tuple[str, float, float] | None:
 
 
 # Helper for the avg() aggregate above so SQLAlchemy type-checking stays happy.
-__all__ = ["EmbeddingModel", "RetrievedNeighbor", "embed_for_storage", "knn", "vote", "func"]
+__all__ = ["EmbeddingModel", "RetrievedNeighbor", "embed_for_storage", "func", "knn", "vote"]

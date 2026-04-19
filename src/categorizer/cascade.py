@@ -21,8 +21,6 @@ from __future__ import annotations
 import json
 import time
 from datetime import timedelta
-from decimal import Decimal
-from typing import TYPE_CHECKING
 
 import structlog
 from sqlalchemy import and_, select
@@ -42,10 +40,8 @@ from .schemas import (
 )
 from .storage import LabeledTransaction, OwnAccount
 from .taxonomy import Taxonomy
-from .tools import TOOL_SCHEMAS, dispatch as tool_dispatch
-
-if TYPE_CHECKING:
-    pass
+from .tools import TOOL_SCHEMAS
+from .tools import dispatch as tool_dispatch
 
 log = structlog.get_logger("cascade")
 
@@ -162,7 +158,6 @@ async def categorize(
     taxonomy: Taxonomy,
 ) -> CategorizationResult:
     settings = get_settings()
-    t_start = time.perf_counter()
     trace: list[dict] = []
 
     normalized = normalize(tx.description)

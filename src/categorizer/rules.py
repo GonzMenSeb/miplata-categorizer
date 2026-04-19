@@ -177,7 +177,7 @@ def resolve_internal_transfer_by_text(
 
 # ── Public entry point ─────────────────────────────────────────────────
 def match(
-    tx: TransactionIn,
+    _tx: TransactionIn,
     normalized: str,
     own_accounts: list[OwnAccountRef],
 ) -> RuleHit | None:
