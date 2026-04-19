@@ -17,12 +17,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from threading import Lock
+from time import perf_counter
 from typing import TYPE_CHECKING
 
 from sqlalchemy import func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import get_settings
+from .metrics import embedding_time_seconds
 
 if TYPE_CHECKING:
     from fastembed import TextEmbedding
@@ -70,7 +72,13 @@ class EmbeddingModel:
         # Other multilingual encoders (MiniLM, mpnet) don't use that convention.
         if "e5" in get_settings().embedding_model.lower():
             texts = [f"query: {t}" for t in texts]
-        return [list(v) for v in self._model.embed(texts)]
+        started = perf_counter()
+        try:
+            return [list(v) for v in self._model.embed(texts)]
+        finally:
+            # Histogram is bounded-cardinality (no labels) so per-call observe
+            # is safe. In practice callers pass a single text at a time.
+            embedding_time_seconds.observe(perf_counter() - started)
 
 
 async def embed_for_storage(texts: list[str]) -> list[list[float]]:
