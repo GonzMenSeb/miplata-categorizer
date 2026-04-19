@@ -1,16 +1,25 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(
+            name: 'RUN_EVAL',
+            defaultValue: false,
+            description: 'Run the gold-set eval harness after deploy. Off by default (~12-min stage).'
+        )
+    }
+
     environment {
-        REGISTRY    = 'registry.web.vespiridion.org'
-        IMAGE       = "${REGISTRY}/miplata/categorizer"
-        VPS_HOST    = 'ubuntu@148.113.172.15'
-        VPS_APP_DIR = '/opt/categorizer'
+        REGISTRY         = 'registry.web.vespiridion.org'
+        IMAGE            = "${REGISTRY}/miplata/categorizer"
+        VPS_HOST         = 'ubuntu@148.113.172.15'
+        VPS_APP_DIR      = '/opt/categorizer'
+        CATEGORIZER_URL  = 'https://categorizer.web.vespiridion.org'
     }
 
     options {
         disableConcurrentBuilds()
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 30, unit: 'MINUTES')
     }
 
     stages {
@@ -91,6 +100,71 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no $VPS_HOST \
                             "cd $VPS_APP_DIR && docker compose run --rm api alembic upgrade head"
                     '''
+                }
+            }
+        }
+
+        // Optional gold-set eval. Gated behind RUN_EVAL so normal commits
+        // don't pay the ~12-minute cost. Exit-0 = promote, 1 = reject (fail
+        // the build), 2 = inconclusive (mark unstable, don't fail).
+        //
+        // TODO(credential): the bearer token for /v1/* currently lives only
+        // in vault.yml as vault_categorizer_api_token. Adding it as a Jenkins
+        // credential requires editing roles/jenkins/templates/casc.yml.j2 in
+        // the vps-infrastructure repo and re-running the jenkins playbook.
+        // Until that lands, enabling RUN_EVAL=true requires an operator to
+        // add a `categorizer-api-token` string credential in Jenkins
+        // manually (or via JCasC). The stage fails fast with a readable
+        // credential-missing error if it isn't present — intentional.
+        stage('Eval Gate') {
+            when { expression { params.RUN_EVAL } }
+            agent {
+                docker {
+                    image 'python:3.12-slim-bookworm'
+                    reuseNode true
+                    args '-e HOME=${WORKSPACE}/.pip-home'
+                }
+            }
+            steps {
+                withCredentials([string(
+                    credentialsId: 'categorizer-api-token',
+                    variable: 'CATEGORIZER_API_TOKEN'
+                )]) {
+                    sh '''
+                        mkdir -p "$HOME"
+                        export PATH="$HOME/.local/bin:$PATH"
+                        pip install --quiet --no-cache-dir --user '.[eval]'
+                        python -m eval.eval \
+                            --base-url "$CATEGORIZER_URL" \
+                            --token "$CATEGORIZER_API_TOKEN" \
+                            --gold config/gold_set_v1.jsonl \
+                            --out eval/metrics.json
+                    '''
+                    script {
+                        def rc = sh(
+                            returnStatus: true,
+                            script: '''
+                                python -m eval.compare \
+                                    --baseline eval/baselines/v0.json \
+                                    --candidate eval/metrics.json
+                            '''
+                        )
+                        if (rc == 0) {
+                            echo 'Eval compare: promote.'
+                        } else if (rc == 1) {
+                            error 'Eval compare rejected the candidate (macro-F1 / parent regression).'
+                        } else {
+                            unstable 'Eval compare inconclusive — insufficient statistical power.'
+                        }
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts(
+                        artifacts: 'eval/metrics.json,eval/metrics.prom',
+                        allowEmptyArchive: true
+                    )
                 }
             }
         }
