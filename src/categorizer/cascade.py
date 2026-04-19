@@ -19,6 +19,7 @@ that meets its configured threshold.
 from __future__ import annotations
 
 import json
+import re
 import time
 from datetime import timedelta
 
@@ -44,6 +45,27 @@ from .tools import TOOL_SCHEMAS
 from .tools import dispatch as tool_dispatch
 
 log = structlog.get_logger("cascade")
+
+# Canonical UUID shape (8-4-4-4-12 hex, case-insensitive). miplata passes
+# its Prisma Account.id through as `account_slug`; we detect that shape to
+# resolve back to the categorizer's friendly slug via own_accounts.
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+
+
+async def _resolve_account_slug(session: AsyncSession, account_slug: str) -> str:
+    """If `account_slug` is a miplata UUID, translate it to our friendly slug.
+
+    Returns the friendly slug when the UUID resolves, otherwise the input
+    unchanged. A UUID that does not resolve is a legitimate case (new
+    miplata account not yet sync'd) and is handled upstream by falling
+    through the paired-tx tier gracefully.
+    """
+    if not _UUID_RE.match(account_slug):
+        return account_slug
+    row = await session.scalar(
+        select(OwnAccount.slug).where(OwnAccount.miplata_account_id == account_slug)
+    )
+    return row or account_slug
 
 
 async def _load_own_accounts(session: AsyncSession) -> list[OwnAccountRef]:
@@ -73,11 +95,18 @@ async def _paired_internal_transfer(
     Carcass variant: currently only matches against already-labeled
     transactions. In a future version we also query miplata_ro_database_url
     for unlabeled candidate pairs — marked TODO below.
+
+    The incoming tx's `account_slug` may be a miplata UUID; we translate
+    it to our friendly slug first so the "different account" predicate
+    compares apples to apples against labeled_transactions.account_slug
+    (which is always a friendly slug because the FK points at
+    own_accounts.slug).
     """
+    resolved_slug = await _resolve_account_slug(session, tx.account_slug)
     opposite_type = "credit" if tx.transaction_type == "debit" else "debit"
     stmt = select(LabeledTransaction).where(
         and_(
-            LabeledTransaction.account_slug != tx.account_slug,
+            LabeledTransaction.account_slug != resolved_slug,
             LabeledTransaction.transaction_type == opposite_type,
             LabeledTransaction.amount == abs(tx.amount),
             LabeledTransaction.tx_date >= tx.tx_date - timedelta(days=2),
