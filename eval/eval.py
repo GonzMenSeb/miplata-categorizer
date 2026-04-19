@@ -11,7 +11,9 @@ Design notes:
     tests for the reject path — they stay in scope and count toward metrics.
   * Concurrency is capped at 4 because the backing llama-server has 2 KV-cache
     slots; over-parallel requests thrash.
-  * Per-request timeout is 100s (the LLM /think branch can take 15-25s).
+  * Per-request timeout is 180s — a single cascade can traverse both the LLM
+    /no_think AND the /think branch on reject-path rows, each of which is 30-
+    60s on the current hardware, so the sum can breach a shorter ceiling.
 """
 
 from __future__ import annotations
@@ -107,7 +109,7 @@ async def _categorize_one(
                 f"{base_url.rstrip('/')}/v1/categorize",
                 headers=headers,
                 json=payload,
-                timeout=100.0,
+                timeout=180.0,
             )
             r.raise_for_status()
             data = r.json()

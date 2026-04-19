@@ -16,3 +16,8 @@ artifacts/
 *.onnx
 .idea/
 .vscode/
+
+# Eval run artifacts — only baselines/ is tracked.
+eval/metrics.json
+eval/metrics.prom
+

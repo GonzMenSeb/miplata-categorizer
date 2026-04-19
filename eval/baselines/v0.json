@@ -1,0 +1,541 @@
+{
+  "gold_path": "config/gold_set_v1.jsonl",
+  "base_url": "https://categorizer.web.vespiridion.org",
+  "total": 50,
+  "errors": 0,
+  "flat_accuracy": 0.96,
+  "macro_f1": 0.9400352733686067,
+  "per_parent_f1": {
+    "comida": 1.0,
+    "compras": 1.0,
+    "cuidado_personal": 1.0,
+    "finanzas": 1.0,
+    "hogar": 1.0,
+    "ingresos": 1.0,
+    "movimientos_internos": 0.9473684210526316,
+    "ocio": 1.0,
+    "salud": 1.0,
+    "sin_clasificar": 0.6666666666666666,
+    "suscripciones": 1.0,
+    "transferencias_personas": 1.0,
+    "transporte": 1.0
+  },
+  "hierarchical_f1": 0.97,
+  "ece_per_tier": {
+    "knn": 0.07266666666666668,
+    "rules": 0.038787878787878816,
+    "llm_notink": null
+  },
+  "tier_hits": {
+    "knn": 15,
+    "rules": 33,
+    "llm_notink": 2
+  },
+  "tier_share": {
+    "knn": 0.3,
+    "rules": 0.66,
+    "llm_notink": 0.04
+  },
+  "predictions": [
+    {
+      "external_id": "gold-0001",
+      "expected": "comida.snacks_dulces",
+      "predicted": "comida.restaurantes",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 49.6,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0002",
+      "expected": "transferencias_personas.envio",
+      "predicted": "transferencias_personas.envio",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 48.73,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0003",
+      "expected": "cuidado_personal.peluqueria",
+      "predicted": "cuidado_personal.peluqueria",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 27.24,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0004",
+      "expected": "ingresos.intereses_bancarios",
+      "predicted": "ingresos.intereses_bancarios",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.75,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0005",
+      "expected": "hogar.servicios_publicos",
+      "predicted": "hogar.servicios_publicos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 16.9,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0006",
+      "expected": "transferencias_personas.envio",
+      "predicted": "transferencias_personas.envio",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 36.38,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0007",
+      "expected": "ingresos.salario",
+      "predicted": "ingresos.salario",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 30.34,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0008",
+      "expected": "movimientos_internos.entre_bancos",
+      "predicted": "movimientos_internos.entre_bancos",
+      "confidence": 0.97,
+      "source_tier": "rules",
+      "latency_ms": 1.98,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0009",
+      "expected": "hogar.servicios_publicos",
+      "predicted": "hogar.servicios_publicos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 4.65,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0010",
+      "expected": "transferencias_personas.envio",
+      "predicted": "transferencias_personas.envio",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 36.15,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0011",
+      "expected": "transporte.transporte_publico",
+      "predicted": "transporte.transporte_publico",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 7.65,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0012",
+      "expected": "salud.eps_seguros",
+      "predicted": "salud.eps_seguros",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.76,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0013",
+      "expected": "comida.restaurantes",
+      "predicted": "comida.restaurantes",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 23.95,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0014",
+      "expected": "comida.cafe_panaderia",
+      "predicted": "comida.cafe_panaderia",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 4.61,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0015",
+      "expected": "movimientos_internos.entre_bancos",
+      "predicted": "movimientos_internos.entre_bancos",
+      "confidence": 0.97,
+      "source_tier": "rules",
+      "latency_ms": 4.64,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0016",
+      "expected": "finanzas.mora",
+      "predicted": "finanzas.mora",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 3.05,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0017",
+      "expected": "movimientos_internos.entre_bancos",
+      "predicted": "movimientos_internos.entre_bancos",
+      "confidence": 0.97,
+      "source_tier": "rules",
+      "latency_ms": 4.68,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0018",
+      "expected": "movimientos_internos.pago_tarjeta_propia",
+      "predicted": "movimientos_internos.pago_tarjeta_propia",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 11.23,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0019",
+      "expected": "finanzas.impuestos",
+      "predicted": "finanzas.impuestos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 3.49,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0020",
+      "expected": "finanzas.impuestos",
+      "predicted": "finanzas.impuestos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 7.06,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0021",
+      "expected": "finanzas.comisiones_bancarias",
+      "predicted": "finanzas.comisiones_bancarias",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.26,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0022",
+      "expected": "ingresos.intereses_bancarios",
+      "predicted": "ingresos.intereses_bancarios",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.74,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0023",
+      "expected": "movimientos_internos.entre_bancos",
+      "predicted": "movimientos_internos.entre_bancos",
+      "confidence": 0.97,
+      "source_tier": "rules",
+      "latency_ms": 5.78,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0024",
+      "expected": "finanzas.mora",
+      "predicted": "finanzas.mora",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 6.6,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0025",
+      "expected": "comida.mercado",
+      "predicted": "comida.mercado",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 3.71,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0026",
+      "expected": "comida.domicilios",
+      "predicted": "comida.domicilios",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 3.74,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0027",
+      "expected": "movimientos_internos.pago_tarjeta_propia",
+      "predicted": "movimientos_internos.pago_tarjeta_propia",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.28,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0028",
+      "expected": "movimientos_internos.pago_tarjeta_propia",
+      "predicted": "movimientos_internos.pago_tarjeta_propia",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.35,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0029",
+      "expected": "transporte.taxi_rideshare",
+      "predicted": "transporte.taxi_rideshare",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 3.06,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0030",
+      "expected": "suscripciones.software_saas",
+      "predicted": "suscripciones.software_saas",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.34,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0031",
+      "expected": "ocio.cine_teatro",
+      "predicted": "ocio.cine_teatro",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.95,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0032",
+      "expected": "comida.restaurantes",
+      "predicted": "comida.restaurantes",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 39.24,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0033",
+      "expected": "comida.mercado",
+      "predicted": "comida.mercado",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 3.05,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0034",
+      "expected": "comida.cafe_panaderia",
+      "predicted": "comida.cafe_panaderia",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 47.36,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0035",
+      "expected": "comida.domicilios",
+      "predicted": "comida.domicilios",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.07,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0036",
+      "expected": "suscripciones.videojuegos",
+      "predicted": "suscripciones.videojuegos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 10.77,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0037",
+      "expected": "suscripciones.software_saas",
+      "predicted": "suscripciones.software_saas",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 16.21,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0038",
+      "expected": "movimientos_internos.entre_bancos",
+      "predicted": "movimientos_internos.entre_bancos",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 38.58,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0039",
+      "expected": "suscripciones.videojuegos",
+      "predicted": "suscripciones.videojuegos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 7.93,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0040",
+      "expected": "transporte.taxi_rideshare",
+      "predicted": "transporte.taxi_rideshare",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.5,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0041",
+      "expected": "suscripciones.apoyo_creadores",
+      "predicted": "suscripciones.apoyo_creadores",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 2.11,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0042",
+      "expected": "transferencias_personas.recibido",
+      "predicted": "transferencias_personas.recibido",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 47.91,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0043",
+      "expected": "comida.restaurantes",
+      "predicted": "comida.restaurantes",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 53.13,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0044",
+      "expected": "sin_clasificar.pendiente",
+      "predicted": "movimientos_internos.pago_tarjeta_propia",
+      "confidence": 0.95,
+      "source_tier": "llm_notink",
+      "latency_ms": 101147.48,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0045",
+      "expected": "transferencias_personas.recibido",
+      "predicted": "transferencias_personas.recibido",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 61.16,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0046",
+      "expected": "movimientos_internos.retiro_efectivo",
+      "predicted": "movimientos_internos.retiro_efectivo",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 4.22,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0047",
+      "expected": "sin_clasificar.pendiente",
+      "predicted": "sin_clasificar.pendiente",
+      "confidence": 0.92,
+      "source_tier": "llm_notink",
+      "latency_ms": 96100.12,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0048",
+      "expected": "ingresos.reembolsos",
+      "predicted": "ingresos.reembolsos",
+      "confidence": 0.96,
+      "source_tier": "rules",
+      "latency_ms": 5.45,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0049",
+      "expected": "compras.tiendas_online",
+      "predicted": "compras.tiendas_online",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 83.69,
+      "ok": true,
+      "error": null
+    },
+    {
+      "external_id": "gold-0050",
+      "expected": "transferencias_personas.recibido",
+      "predicted": "transferencias_personas.recibido",
+      "confidence": 0.99,
+      "source_tier": "knn",
+      "latency_ms": 38.03,
+      "ok": true,
+      "error": null
+    }
+  ]
+}
