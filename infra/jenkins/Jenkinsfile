@@ -19,11 +19,14 @@ pipeline {
                 docker {
                     image 'python:3.12-slim-bookworm'
                     reuseNode true
+                    args '-e HOME=${WORKSPACE}/.pip-home'
                 }
             }
             steps {
                 sh '''
-                    pip install --quiet --no-cache-dir '.[dev]'
+                    mkdir -p "$HOME"
+                    export PATH="$HOME/.local/bin:$PATH"
+                    pip install --quiet --no-cache-dir --user '.[dev]'
                     ruff check src tests
                     mypy src || true
                 '''
@@ -35,11 +38,14 @@ pipeline {
                 docker {
                     image 'python:3.12-slim-bookworm'
                     reuseNode true
+                    args '-e HOME=${WORKSPACE}/.pip-home'
                 }
             }
             steps {
                 sh '''
-                    pip install --quiet --no-cache-dir '.[dev]'
+                    mkdir -p "$HOME"
+                    export PATH="$HOME/.local/bin:$PATH"
+                    pip install --quiet --no-cache-dir --user '.[dev]'
                     pytest -v --junitxml=test-results.xml
                 '''
             }
