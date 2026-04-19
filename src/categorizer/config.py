@@ -14,9 +14,9 @@ class Settings(BaseSettings):
     log_level: str = Field("INFO", alias="CATEGORIZER_LOG_LEVEL")
 
     database_url: PostgresDsn = Field(..., alias="DATABASE_URL")
-    # Kept as plain str so ops-generated passwords with '/' or '+' don't trip
-    # pydantic's strict URL parser. SQLAlchemy/psycopg parse at use site.
-    miplata_ro_database_url: str | None = Field(None, alias="MIPLATA_RO_DATABASE_URL")
+    # Ops-generated passwords are now URL-encoded by the ansible role, so
+    # pydantic's strict RFC-3986 parser accepts them again.
+    miplata_ro_database_url: PostgresDsn | None = Field(None, alias="MIPLATA_RO_DATABASE_URL")
 
     llm_base_url: str = Field("http://llama-server:8080/v1", alias="LLM_BASE_URL")
     llm_model: str = Field("qwen3-4b-instruct-2507", alias="LLM_MODEL")
