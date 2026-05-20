@@ -1,0 +1,4057 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "miplata-categorizer",
+    "languages": [
+      "config",
+      "dockerfile",
+      "jenkinsfile",
+      "json",
+      "jsonl",
+      "mako",
+      "markdown",
+      "python",
+      "toml",
+      "yaml"
+    ],
+    "frameworks": [
+      "Accelerate",
+      "Docker",
+      "FastAPI",
+      "HiClass",
+      "HuggingFace Datasets",
+      "Jenkins",
+      "PEFT",
+      "PyTorch",
+      "TRL",
+      "Transformers",
+      "Unsloth",
+      "bitsandbytes",
+      "httpx",
+      "netcal",
+      "pytest",
+      "pytest-asyncio"
+    ],
+    "description": "Self-hosted Colombian-Spanish personal-finance transaction categorizer built as a cascade (normalize -> deterministic rules -> pgvector kNN over the user's labeled history -> small tool-using LLM on Qwen3-4B), exposing a FastAPI service backed by Postgres/pgvector and Alembic migrations. Designed to run on a modest CPU VPS with no GPU and no API fallbacks.",
+    "analyzedAt": "2026-05-20T16:31:14.514Z",
+    "gitCommitHash": "925fca4cf77675322aca21707c8355b729fbf8ed"
+  },
+  "nodes": [
+    {
+      "id": "service:Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "Dockerfile",
+      "summary": "Multi-stage Docker build that pip-installs the package into a /install prefix in a builder image, then copies it into a slim python:3.12 runtime that runs uvicorn as an unprivileged app user and exposes port 8000.",
+      "tags": [
+        "containerization",
+        "infrastructure",
+        "deployment",
+        "multi-stage-build"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Two-stage build (builder + runtime) keeps the final image free of build-essential; PYTHONPATH=/app/src is set so the package can be imported without an editable install."
+    },
+    {
+      "id": "config:alembic.ini",
+      "type": "config",
+      "name": "alembic.ini",
+      "filePath": "alembic.ini",
+      "summary": "Alembic configuration pointing at the alembic/ migration directory; the database URL is overridden at runtime by alembic/env.py using application settings.",
+      "tags": [
+        "configuration",
+        "alembic",
+        "migrations",
+        "database"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:alembic/env.py",
+      "type": "file",
+      "name": "env.py",
+      "filePath": "alembic/env.py",
+      "summary": "Alembic environment script that pulls the database URL from the app's Settings and runs migrations against the project's SQLAlchemy Base metadata in either offline or async-online mode.",
+      "tags": [
+        "alembic",
+        "migrations",
+        "database",
+        "configuration"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses async_engine_from_config + connection.run_sync to drive migrations over an async engine."
+    },
+    {
+      "id": "function:alembic/env.py:run_migrations_online",
+      "type": "function",
+      "name": "run_migrations_online",
+      "filePath": "alembic/env.py",
+      "lineRange": [
+        43,
+        52
+      ],
+      "summary": "Builds an async SQLAlchemy engine from the alembic config (with the DB URL injected from Settings) and runs the migrations inside a connection.run_sync block.",
+      "tags": [
+        "alembic",
+        "migrations",
+        "async",
+        "database"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:alembic/script.py.mako",
+      "type": "file",
+      "name": "script.py.mako",
+      "filePath": "alembic/script.py.mako",
+      "summary": "Mako template used by `alembic revision` to scaffold new migration files with revision IDs, down-revision links, and empty upgrade/downgrade stubs.",
+      "tags": [
+        "alembic",
+        "template",
+        "migrations",
+        "scaffolding"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:alembic/versions/0001_initial.py",
+      "type": "file",
+      "name": "0001_initial.py",
+      "filePath": "alembic/versions/0001_initial.py",
+      "summary": "Initial schema migration that enables the pgvector extension and creates the core tables (own_accounts, labeled_transactions with a vector column + ivfflat index, predictions, corrections, merchants).",
+      "tags": [
+        "migration",
+        "database",
+        "pgvector",
+        "initial-schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:alembic/versions/0001_initial.py:upgrade",
+      "type": "function",
+      "name": "upgrade",
+      "filePath": "alembic/versions/0001_initial.py",
+      "lineRange": [
+        20,
+        92
+      ],
+      "summary": "Creates the full initial DDL: enables `vector` extension, creates own_accounts/labeled_transactions/predictions/corrections/merchants tables and the supporting indexes including the ivfflat embedding index.",
+      "tags": [
+        "migration",
+        "ddl",
+        "pgvector",
+        "schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:alembic/versions/0001_initial.py:downgrade",
+      "type": "function",
+      "name": "downgrade",
+      "filePath": "alembic/versions/0001_initial.py",
+      "lineRange": [
+        95,
+        106
+      ],
+      "summary": "Tears down every table and index introduced by the initial migration in reverse order so the schema returns to an empty state.",
+      "tags": [
+        "migration",
+        "ddl",
+        "rollback"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "type": "file",
+      "name": "0002_seed_own_accounts_and_merchants.py",
+      "filePath": "alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "summary": "Data migration that seeds the personal own_accounts (Bancolombia/Nu/Davivienda/etc.) and an initial Colombian merchant dictionary, all idempotent via ON CONFLICT DO NOTHING.",
+      "tags": [
+        "migration",
+        "seed-data",
+        "database",
+        "merchants"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:alembic/versions/0002_seed_own_accounts_and_merchants.py:upgrade",
+      "type": "function",
+      "name": "upgrade",
+      "filePath": "alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "lineRange": [
+        95,
+        128
+      ],
+      "summary": "Reflects the own_accounts and merchants tables, then bulk-upserts the seed rows using postgresql.insert(...).on_conflict_do_nothing() so reruns are safe.",
+      "tags": [
+        "migration",
+        "seed-data",
+        "upsert"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:alembic/versions/0003_jsonb_aliases.py",
+      "type": "file",
+      "name": "0003_jsonb_aliases.py",
+      "filePath": "alembic/versions/0003_jsonb_aliases.py",
+      "summary": "Converts the `aliases` columns on own_accounts and merchants from JSON to PostgreSQL JSONB so they can be indexed and queried with `?` containment operators.",
+      "tags": [
+        "migration",
+        "ddl",
+        "jsonb",
+        "schema-change"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:alembic/versions/0004_own_accounts_miplata_id.py",
+      "type": "file",
+      "name": "0004_own_accounts_miplata_id.py",
+      "filePath": "alembic/versions/0004_own_accounts_miplata_id.py",
+      "summary": "Adds a nullable `miplata_account_id` UUID column (with a unique index) to own_accounts so internal slugs can be mapped back to MiPlata's account UUIDs.",
+      "tags": [
+        "migration",
+        "ddl",
+        "uuid",
+        "schema-change"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:alembic/versions/0005_seed_carcass_merchants.py",
+      "type": "file",
+      "name": "0005_seed_carcass_merchants.py",
+      "filePath": "alembic/versions/0005_seed_carcass_merchants.py",
+      "summary": "Data migration that adds a second wave of seeded merchants (the \"carcass\" set) to the merchants table via idempotent ON CONFLICT DO NOTHING upserts.",
+      "tags": [
+        "migration",
+        "seed-data",
+        "merchants"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:infra/jenkins/Jenkinsfile",
+      "type": "pipeline",
+      "name": "Jenkinsfile",
+      "filePath": "infra/jenkins/Jenkinsfile",
+      "summary": "Declarative Jenkins pipeline that lints, builds the Docker image, pushes it to the self-hosted Zot registry, runs Alembic migrations on the VPS, redeploys the categorizer service, and optionally runs the gold-set evaluation harness.",
+      "tags": [
+        "ci-cd",
+        "deployment",
+        "infrastructure",
+        "jenkins",
+        "docker"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses an inline Docker agent for the lint/typecheck stage so it does not need Python on the Jenkins host."
+    },
+    {
+      "id": "config:pyproject.toml",
+      "type": "config",
+      "name": "pyproject.toml",
+      "filePath": "pyproject.toml",
+      "summary": "Python package manifest declaring runtime deps (FastAPI, SQLAlchemy async + pgvector, OpenAI client, fastembed, structlog) plus dev/training extras and tool configuration for Ruff and pytest.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "dependencies",
+        "python-packaging"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/categorizer/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "src/categorizer/__init__.py",
+      "summary": "Empty package marker that exposes `src/categorizer` as the `categorizer` Python package.",
+      "tags": [
+        "entry-point",
+        "package-marker",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/api.py",
+      "type": "file",
+      "name": "api.py",
+      "filePath": "src/categorizer/api.py",
+      "summary": "FastAPI router exposing the categorizer's HTTP surface: /healthz, /metrics, POST /v1/categorize (runs the cascade and records a Prediction), POST /v1/label (stores labeled transactions + corrections with embeddings), GET /v1/uncertain, GET /v1/taxonomy, and GET /v1/own_accounts.",
+      "tags": [
+        "api-handler",
+        "fastapi",
+        "http",
+        "entry-point"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/categorizer/api.py:categorize_endpoint",
+      "type": "function",
+      "name": "categorize_endpoint",
+      "filePath": "src/categorizer/api.py",
+      "lineRange": [
+        68,
+        100
+      ],
+      "summary": "POST /v1/categorize handler: times the cascade.categorize call, increments Prometheus latency and prediction counters by tier, persists a Prediction row, and returns the CategorizationResult.",
+      "tags": [
+        "api-handler",
+        "categorization",
+        "metrics",
+        "persistence"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/api.py:label_endpoint",
+      "type": "function",
+      "name": "label_endpoint",
+      "filePath": "src/categorizer/api.py",
+      "lineRange": [
+        104,
+        150
+      ],
+      "summary": "POST /v1/label handler: normalizes the description, embeds it for kNN reuse, resolves the account slug (UUID-aware), upserts a LabeledTransaction, and writes a Correction row when the user is overriding a previous prediction.",
+      "tags": [
+        "api-handler",
+        "labeling",
+        "embedding",
+        "feedback-loop"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/api.py:list_uncertain",
+      "type": "function",
+      "name": "list_uncertain",
+      "filePath": "src/categorizer/api.py",
+      "lineRange": [
+        154,
+        188
+      ],
+      "summary": "GET /v1/uncertain: returns recent Prediction rows that were rejected (sin_clasificar.*) or fell below the 0.70 confidence floor so the operator can review them.",
+      "tags": [
+        "api-handler",
+        "review-queue",
+        "uncertainty"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/api.py:get_taxonomy",
+      "type": "function",
+      "name": "get_taxonomy",
+      "filePath": "src/categorizer/api.py",
+      "lineRange": [
+        192,
+        205
+      ],
+      "summary": "GET /v1/taxonomy: serializes the in-memory Taxonomy into a tree of roots and children for UI consumption.",
+      "tags": [
+        "api-handler",
+        "taxonomy",
+        "read-only"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/categorizer/api.py:list_own_accounts",
+      "type": "function",
+      "name": "list_own_accounts",
+      "filePath": "src/categorizer/api.py",
+      "lineRange": [
+        209,
+        226
+      ],
+      "summary": "GET /v1/own_accounts: returns all configured personal accounts (slug, display name, institution, aliases) so MiPlata can render the labeling UI.",
+      "tags": [
+        "api-handler",
+        "own-accounts",
+        "read-only"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/cascade.py",
+      "type": "file",
+      "name": "cascade.py",
+      "filePath": "src/categorizer/cascade.py",
+      "summary": "Heart of the categorizer: orchestrates the deterministic-to-probabilistic cascade (normalize → rules → paired internal transfer → merchant dict → kNN vote → LLM no_think with tools → LLM think) and emits a CategorizationResult with a full tier_trace.",
+      "tags": [
+        "entry-point",
+        "cascade",
+        "orchestrator",
+        "categorization",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Each tier writes to a shared `trace` list and exits early as soon as its configured confidence threshold is met; tool calls are dispatched mid-LLM via `tools.dispatch`."
+    },
+    {
+      "id": "function:src/categorizer/cascade.py:categorize",
+      "type": "function",
+      "name": "categorize",
+      "filePath": "src/categorizer/cascade.py",
+      "lineRange": [
+        206,
+        454
+      ],
+      "summary": "Async entry point that walks every tier of the cascade in order, short-circuits on the first one to clear its threshold, and falls back to `sin_clasificar.pendiente` rather than guessing when nothing is confident.",
+      "tags": [
+        "cascade",
+        "categorization",
+        "orchestrator",
+        "async"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/categorizer/cascade.py:_paired_internal_transfer",
+      "type": "function",
+      "name": "_paired_internal_transfer",
+      "filePath": "src/categorizer/cascade.py",
+      "lineRange": [
+        85,
+        125
+      ],
+      "summary": "DB-driven heuristic that detects internal transfers by looking for an opposite-sign LabeledTransaction within a few days on another own_account with a matching amount.",
+      "tags": [
+        "rules",
+        "internal-transfer",
+        "database",
+        "heuristic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/cascade.py:_build_llm_messages",
+      "type": "function",
+      "name": "_build_llm_messages",
+      "filePath": "src/categorizer/cascade.py",
+      "lineRange": [
+        128,
+        186
+      ],
+      "summary": "Builds the chat-completion messages for the small LLM, embedding the normalized text, kNN neighbors, merchant hint, allowed taxonomy slugs and a description of the own_accounts so the model has structured context.",
+      "tags": [
+        "llm",
+        "prompt-construction",
+        "context-building"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/categorizer/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "src/categorizer/config.py",
+      "summary": "Pydantic-Settings module that loads environment-driven configuration (DB URLs, LLM endpoint, thresholds for each cascade tier, taxonomy path, embedding model) and exposes a cached `get_settings()` singleton.",
+      "tags": [
+        "configuration",
+        "pydantic-settings",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/config.py:Settings",
+      "type": "class",
+      "name": "Settings",
+      "filePath": "src/categorizer/config.py",
+      "lineRange": [
+        8,
+        47
+      ],
+      "summary": "Central Settings model holding the database URL, LLM endpoint/model/timeout, tier-by-tier confidence thresholds and taxonomy/artifact paths used everywhere in the service.",
+      "tags": [
+        "settings",
+        "pydantic",
+        "configuration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/features.py",
+      "type": "file",
+      "name": "features.py",
+      "filePath": "src/categorizer/features.py",
+      "summary": "Stateless feature extractors used as deterministic signals before the LLM tier: amount bucketing, day-of-week features and a recurring-charge detector that compares against the user's history.",
+      "tags": [
+        "features",
+        "feature-engineering",
+        "deterministic",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/features.py:detect_recurring",
+      "type": "function",
+      "name": "detect_recurring",
+      "filePath": "src/categorizer/features.py",
+      "lineRange": [
+        48,
+        97
+      ],
+      "summary": "Checks whether the incoming transaction looks like a recurring charge by examining median amount and day-gap regularity within a slice of historical transactions.",
+      "tags": [
+        "features",
+        "recurring",
+        "heuristic",
+        "statistics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/categorizer/llm.py",
+      "type": "file",
+      "name": "llm.py",
+      "filePath": "src/categorizer/llm.py",
+      "summary": "Thin async client over the OpenAI SDK pointed at the self-hosted llama-server Qwen3-4B endpoint: builds a JSON-schema constrained category response, supports tool-calling, and toggles a /think suffix for the uncertainty branch.",
+      "tags": [
+        "llm",
+        "openai-client",
+        "json-schema",
+        "tool-calling"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Constrains the model output with a chat.completions response_format=json_schema so categories cannot drift outside the allowed slug list."
+    },
+    {
+      "id": "function:src/categorizer/llm.py:build_category_schema",
+      "type": "function",
+      "name": "build_category_schema",
+      "filePath": "src/categorizer/llm.py",
+      "lineRange": [
+        50,
+        81
+      ],
+      "summary": "Produces a strict JSON schema for the LLM response, enumerating only the allowed taxonomy slugs and requiring a confidence float and reasoning string.",
+      "tags": [
+        "llm",
+        "json-schema",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/categorizer/llm.py:classify",
+      "type": "function",
+      "name": "classify",
+      "filePath": "src/categorizer/llm.py",
+      "lineRange": [
+        84,
+        154
+      ],
+      "summary": "Sends chat messages to the local llama-server with the category JSON schema and optional tools, optionally enables Qwen3 thinking mode by appending `/think`, and returns a parsed LLMResponse including elapsed time.",
+      "tags": [
+        "llm",
+        "async",
+        "openai-client",
+        "tool-calling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/categorizer/llm.py:LLMResponse",
+      "type": "class",
+      "name": "LLMResponse",
+      "filePath": "src/categorizer/llm.py",
+      "lineRange": [
+        25,
+        31
+      ],
+      "summary": "Dataclass-style container for the LLM result: raw content, parsed JSON, tool calls, finish reason, elapsed ms and the model id that produced it.",
+      "tags": [
+        "data-class",
+        "llm",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/logging_setup.py",
+      "type": "file",
+      "name": "logging_setup.py",
+      "filePath": "src/categorizer/logging_setup.py",
+      "summary": "Bootstraps structlog with a JSONRenderer pipeline so every log line emitted by the service is structured JSON tagged with timestamp, level and stack info.",
+      "tags": [
+        "logging",
+        "structlog",
+        "configuration",
+        "observability"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "src/categorizer/main.py",
+      "summary": "FastAPI application factory: configures logging in the lifespan, loads the taxonomy YAML into app.state, mounts the api router, and exposes the `app` instance uvicorn targets in the Dockerfile CMD.",
+      "tags": [
+        "entry-point",
+        "fastapi",
+        "bootstrap",
+        "application-factory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/categorizer/main.py:create_app",
+      "type": "function",
+      "name": "create_app",
+      "filePath": "src/categorizer/main.py",
+      "lineRange": [
+        30,
+        38
+      ],
+      "summary": "Builds the FastAPI instance with the lifespan handler and mounts the categorizer router; returns the configured app for uvicorn to serve.",
+      "tags": [
+        "bootstrap",
+        "fastapi",
+        "factory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/categorizer/main.py:lifespan",
+      "type": "function",
+      "name": "lifespan",
+      "filePath": "src/categorizer/main.py",
+      "lineRange": [
+        20,
+        27
+      ],
+      "summary": "Async context manager run by FastAPI on startup/shutdown: configures structlog and loads the taxonomy YAML into app.state so handlers can access it without re-parsing.",
+      "tags": [
+        "lifespan",
+        "fastapi",
+        "bootstrap"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/merchant.py",
+      "type": "file",
+      "name": "merchant.py",
+      "filePath": "src/categorizer/merchant.py",
+      "summary": "Merchant dictionary tier: exposes `lookup()` which first tries a JSONB-containment alias match against the merchants table and otherwise falls back to scanning canonical_name substrings, returning a MerchantMatch with a default category.",
+      "tags": [
+        "merchant",
+        "lookup",
+        "rules-tier",
+        "database"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/merchant.py:lookup",
+      "type": "function",
+      "name": "lookup",
+      "filePath": "src/categorizer/merchant.py",
+      "lineRange": [
+        114,
+        156
+      ],
+      "summary": "Async merchant matcher: tries an indexed JSONB alias lookup first, then falls back to in-memory substring scanning over canonical names, returning the best MerchantMatch with a default category slug.",
+      "tags": [
+        "merchant",
+        "lookup",
+        "async",
+        "database"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/categorizer/merchant.py:MerchantMatch",
+      "type": "class",
+      "name": "MerchantMatch",
+      "filePath": "src/categorizer/merchant.py",
+      "lineRange": [
+        31,
+        36
+      ],
+      "summary": "Pydantic-like value object describing a merchant lookup hit: canonical name, MCC hint, default category slug, match confidence and source label.",
+      "tags": [
+        "data-class",
+        "merchant",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/metrics.py",
+      "type": "file",
+      "name": "metrics.py",
+      "filePath": "src/categorizer/metrics.py",
+      "summary": "Central Prometheus metrics registry: declares counters (predictions_total, corrections_total) and histograms (categorize_latency_seconds, embedding_time_seconds) and exposes a `render()` helper for the /metrics endpoint.",
+      "tags": [
+        "metrics",
+        "prometheus",
+        "observability",
+        "monitoring"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/normalize.py",
+      "type": "file",
+      "name": "normalize.py",
+      "filePath": "src/categorizer/normalize.py",
+      "summary": "Spanish-aware text normalizer: strips accents while preserving ñ/Ñ, collapses whitespace, drops noisy timestamp/reference tokens common in Colombian bank descriptions, and lowercases the result for downstream rule/kNN matching.",
+      "tags": [
+        "normalization",
+        "text-processing",
+        "spanish",
+        "utility",
+        "tested"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/normalize.py:normalize",
+      "type": "function",
+      "name": "normalize",
+      "filePath": "src/categorizer/normalize.py",
+      "lineRange": [
+        106,
+        119
+      ],
+      "summary": "Public entry point: strips accents, applies all configured regex scrubbers, collapses whitespace and lowercases — returning a deterministic key suitable for kNN and rules.",
+      "tags": [
+        "normalization",
+        "text-processing",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/retrieval.py",
+      "type": "file",
+      "name": "retrieval.py",
+      "filePath": "src/categorizer/retrieval.py",
+      "summary": "kNN tier built on pgvector + fastembed: lazily loads the embedding model as a singleton, embeds texts, runs cosine-similarity kNN scoped by account_slug, and votes a category from the neighbors weighted by similarity.",
+      "tags": [
+        "retrieval",
+        "knn",
+        "pgvector",
+        "embeddings"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/categorizer/retrieval.py:EmbeddingModel",
+      "type": "class",
+      "name": "EmbeddingModel",
+      "filePath": "src/categorizer/retrieval.py",
+      "lineRange": [
+        41,
+        81
+      ],
+      "summary": "Singleton wrapper around fastembed's TextEmbedding that caches the model in the configured artifacts dir and records embedding latency to Prometheus on every call.",
+      "tags": [
+        "embeddings",
+        "singleton",
+        "fastembed",
+        "metrics"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/retrieval.py:knn",
+      "type": "function",
+      "name": "knn",
+      "filePath": "src/categorizer/retrieval.py",
+      "lineRange": [
+        88,
+        139
+      ],
+      "summary": "Embeds the normalized query then runs a cosine-distance pgvector query against labeled_transactions (optionally filtered to a single account_slug) returning the top-k RetrievedNeighbor objects.",
+      "tags": [
+        "retrieval",
+        "knn",
+        "pgvector",
+        "async"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/retrieval.py:vote",
+      "type": "function",
+      "name": "vote",
+      "filePath": "src/categorizer/retrieval.py",
+      "lineRange": [
+        142,
+        163
+      ],
+      "summary": "Aggregates kNN neighbors into a category vote by summing per-slug similarities and returning the winning slug plus its normalized confidence and margin over the runner-up.",
+      "tags": [
+        "retrieval",
+        "voting",
+        "knn",
+        "aggregation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/retrieval.py:RetrievedNeighbor",
+      "type": "class",
+      "name": "RetrievedNeighbor",
+      "filePath": "src/categorizer/retrieval.py",
+      "lineRange": [
+        34,
+        38
+      ],
+      "summary": "Dataclass for one kNN hit: external_id, normalized_description, category_slug and similarity score returned from pgvector.",
+      "tags": [
+        "data-class",
+        "retrieval",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/rules.py",
+      "type": "file",
+      "name": "rules.py",
+      "filePath": "src/categorizer/rules.py",
+      "summary": "Deterministic rules tier: declares the regex catalogue mapping common Colombian-Spanish phrases to category slugs and resolves text-only internal-transfer hints by matching counterparty hints against own_accounts aliases.",
+      "tags": [
+        "rules",
+        "deterministic",
+        "regex",
+        "internal-transfer",
+        "tested"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/rules.py:resolve_internal_transfer_by_text",
+      "type": "function",
+      "name": "resolve_internal_transfer_by_text",
+      "filePath": "src/categorizer/rules.py",
+      "lineRange": [
+        143,
+        180
+      ],
+      "summary": "Tries to mark a transaction as `transferencias.entre_propias` by extracting a counterparty hint with a regex and checking whether it overlaps any own_account alias.",
+      "tags": [
+        "rules",
+        "internal-transfer",
+        "regex",
+        "deterministic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/rules.py:match",
+      "type": "function",
+      "name": "match",
+      "filePath": "src/categorizer/rules.py",
+      "lineRange": [
+        184,
+        207
+      ],
+      "summary": "Applies the rules tier: tries the internal-transfer text resolver first, then iterates the regex → slug catalogue and returns the first hit as a RuleHit.",
+      "tags": [
+        "rules",
+        "matching",
+        "deterministic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/rules.py:RuleHit",
+      "type": "class",
+      "name": "RuleHit",
+      "filePath": "src/categorizer/rules.py",
+      "lineRange": [
+        37,
+        40
+      ],
+      "summary": "Result of a rule match: the category slug, confidence and a human-readable reasoning string.",
+      "tags": [
+        "data-class",
+        "rules",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/schemas.py",
+      "type": "file",
+      "name": "schemas.py",
+      "filePath": "src/categorizer/schemas.py",
+      "summary": "Public Pydantic models exchanged across tiers and the HTTP layer: TransactionIn, CategorizationResult, CategorizeRequest/Response, LabelIn, OwnAccountRef and RetrievedExample.",
+      "tags": [
+        "type-definition",
+        "schemas",
+        "pydantic",
+        "contracts"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/categorizer/schemas.py:TransactionIn",
+      "type": "class",
+      "name": "TransactionIn",
+      "filePath": "src/categorizer/schemas.py",
+      "lineRange": [
+        28,
+        40
+      ],
+      "summary": "Input model for a single transaction to categorize or label: external id, account slug, date, signed amount, currency, description fields, optional balance and arbitrary metadata.",
+      "tags": [
+        "schema",
+        "pydantic",
+        "input"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/schemas.py:CategorizationResult",
+      "type": "class",
+      "name": "CategorizationResult",
+      "filePath": "src/categorizer/schemas.py",
+      "lineRange": [
+        54,
+        61
+      ],
+      "summary": "Standardized cascade result: predicted category slug, confidence, source tier label, reasoning, the kNN examples consulted, the engineered features and the per-tier trace.",
+      "tags": [
+        "schema",
+        "pydantic",
+        "result"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/schemas.py:LabelIn",
+      "type": "class",
+      "name": "LabelIn",
+      "filePath": "src/categorizer/schemas.py",
+      "lineRange": [
+        77,
+        90
+      ],
+      "summary": "Input model for the POST /v1/label endpoint: the transaction being labeled, the chosen category slug, an optional confirmation timestamp and an optional `correction_of` pointer to a previous prediction.",
+      "tags": [
+        "schema",
+        "pydantic",
+        "labeling"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/schemas.py:OwnAccountRef",
+      "type": "class",
+      "name": "OwnAccountRef",
+      "filePath": "src/categorizer/schemas.py",
+      "lineRange": [
+        14,
+        25
+      ],
+      "summary": "Light reference object describing one of the user's own accounts (slug, display name, institution, last-4 tail, aliases) used by the cascade and the HTTP API.",
+      "tags": [
+        "schema",
+        "pydantic",
+        "own-accounts"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/schemas.py:RetrievedExample",
+      "type": "class",
+      "name": "RetrievedExample",
+      "filePath": "src/categorizer/schemas.py",
+      "lineRange": [
+        43,
+        51
+      ],
+      "summary": "kNN example exposed back through the API and embedded in the LLM prompt: the historical transaction's id, normalized description, category, similarity, amount and date.",
+      "tags": [
+        "schema",
+        "pydantic",
+        "retrieval"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/storage.py",
+      "type": "file",
+      "name": "storage.py",
+      "filePath": "src/categorizer/storage.py",
+      "summary": "SQLAlchemy 2.x async ORM layer: declares the Base + table models (OwnAccount, LabeledTransaction with a pgvector embedding column, Prediction, Correction, Merchant) and exposes cached engine and session-factory helpers.",
+      "tags": [
+        "data-model",
+        "sqlalchemy",
+        "orm",
+        "pgvector"
+      ],
+      "complexity": "complex",
+      "languageNotes": "LabeledTransaction.embedding is typed as pgvector.sqlalchemy.Vector and indexed via ivfflat in migration 0001."
+    },
+    {
+      "id": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "class",
+      "name": "OwnAccount",
+      "filePath": "src/categorizer/storage.py",
+      "lineRange": [
+        43,
+        52
+      ],
+      "summary": "ORM model for the user's own accounts: slug, display name, institution, last-4 tail, JSONB aliases and the optional MiPlata account UUID added in migration 0004.",
+      "tags": [
+        "data-model",
+        "sqlalchemy",
+        "own-accounts"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/storage.py:LabeledTransaction",
+      "type": "class",
+      "name": "LabeledTransaction",
+      "filePath": "src/categorizer/storage.py",
+      "lineRange": [
+        55,
+        90
+      ],
+      "summary": "ORM model for the canonical labeled-history table that backs the kNN tier: the raw + normalized description, category slug, account slug, pgvector embedding and source provenance.",
+      "tags": [
+        "data-model",
+        "sqlalchemy",
+        "knn",
+        "pgvector"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/categorizer/storage.py:Prediction",
+      "type": "class",
+      "name": "Prediction",
+      "filePath": "src/categorizer/storage.py",
+      "lineRange": [
+        93,
+        112
+      ],
+      "summary": "ORM model recording every cascade prediction: the predicted slug, confidence, source tier, latency and the full per-tier trace JSON for offline analysis.",
+      "tags": [
+        "data-model",
+        "sqlalchemy",
+        "predictions",
+        "audit"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/storage.py:Correction",
+      "type": "class",
+      "name": "Correction",
+      "filePath": "src/categorizer/storage.py",
+      "lineRange": [
+        115,
+        126
+      ],
+      "summary": "ORM model logging user corrections (old vs new category slug for a given external_id) so the feedback loop can be measured.",
+      "tags": [
+        "data-model",
+        "sqlalchemy",
+        "feedback"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/storage.py:Merchant",
+      "type": "class",
+      "name": "Merchant",
+      "filePath": "src/categorizer/storage.py",
+      "lineRange": [
+        129,
+        148
+      ],
+      "summary": "ORM model for the seeded merchant dictionary: canonical name, JSONB aliases, optional MCC hint, default category slug and source label.",
+      "tags": [
+        "data-model",
+        "sqlalchemy",
+        "merchants"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/taxonomy.py",
+      "type": "file",
+      "name": "taxonomy.py",
+      "filePath": "src/categorizer/taxonomy.py",
+      "summary": "Loads the hierarchical category taxonomy YAML into an immutable in-memory tree and exposes lookup helpers (roots, children_of, parent_of, path, emittable_slugs) used by the cascade and the API.",
+      "tags": [
+        "taxonomy",
+        "configuration",
+        "domain-model",
+        "tested"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:src/categorizer/taxonomy.py:Taxonomy",
+      "type": "class",
+      "name": "Taxonomy",
+      "filePath": "src/categorizer/taxonomy.py",
+      "lineRange": [
+        19,
+        99
+      ],
+      "summary": "Read-only taxonomy graph with parent/child indices plus emittable_slugs() that restricts the set of slugs the LLM is allowed to predict.",
+      "tags": [
+        "taxonomy",
+        "domain-model",
+        "tree"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/categorizer/taxonomy.py:load_taxonomy",
+      "type": "function",
+      "name": "load_taxonomy",
+      "filePath": "src/categorizer/taxonomy.py",
+      "lineRange": [
+        102,
+        117
+      ],
+      "summary": "Parses a categories YAML file into a list of Category records and wraps them in an immutable Taxonomy object.",
+      "tags": [
+        "taxonomy",
+        "yaml",
+        "loader"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/categorizer/taxonomy.py:Category",
+      "type": "class",
+      "name": "Category",
+      "filePath": "src/categorizer/taxonomy.py",
+      "lineRange": [
+        11,
+        16
+      ],
+      "summary": "Immutable Category record (slug, name, parent_slug, implemented flag, example phrases) loaded from the taxonomy YAML.",
+      "tags": [
+        "data-class",
+        "taxonomy",
+        "domain-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/categorizer/tools.py",
+      "type": "file",
+      "name": "tools.py",
+      "filePath": "src/categorizer/tools.py",
+      "summary": "Tool-calling layer for the LLM tier: declares the JSON-schema tool catalogue (merchant_lookup, similar_transactions, monthly_sum_by_description, taxonomy_path, internal_transfer_check) and dispatches each tool against the live SQLAlchemy session.",
+      "tags": [
+        "tools",
+        "llm",
+        "tool-calling",
+        "database"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/categorizer/tools.py:dispatch",
+      "type": "function",
+      "name": "dispatch",
+      "filePath": "src/categorizer/tools.py",
+      "lineRange": [
+        121,
+        212
+      ],
+      "summary": "Async dispatcher that executes a single LLM-requested tool by name (merchant_lookup, similar_transactions, monthly_sum_by_description, taxonomy_path, internal_transfer_check) and returns a ToolCallResult.",
+      "tags": [
+        "tools",
+        "dispatcher",
+        "async",
+        "llm"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:src/categorizer/tools.py:ToolCallResult",
+      "type": "class",
+      "name": "ToolCallResult",
+      "filePath": "src/categorizer/tools.py",
+      "lineRange": [
+        29,
+        32
+      ],
+      "summary": "Dataclass returned by every tool dispatch: tool name, ok flag and the JSON-serializable payload that gets fed back into the LLM.",
+      "tags": [
+        "data-class",
+        "tools",
+        "type-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Top-level project overview describing the cascade architecture (normalize → rules → kNN → LLM), the Colombian-Spanish personal-finance taxonomy, the repo layout, local-dev workflow, deployment topology, and the self-host-only policy.",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "architecture"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "table:config/gold_set_v1.jsonl",
+      "type": "table",
+      "name": "gold_set_v1.jsonl",
+      "filePath": "config/gold_set_v1.jsonl",
+      "summary": "Pinned 56-row gold evaluation set of hand-labeled Colombian transactions; the canonical regression dataset that the eval harness scores against.",
+      "tags": [
+        "data",
+        "evaluation",
+        "gold-set",
+        "labeled-data"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "JSON Lines format — one labeled transaction per line keeps diffs reviewable and parsing streamable."
+    },
+    {
+      "id": "config:config/taxonomy.yaml",
+      "type": "config",
+      "name": "taxonomy.yaml",
+      "filePath": "config/taxonomy.yaml",
+      "summary": "Authoritative two-level Colombian-Spanish category tree consumed by the categorizer (normalize, rules, LLM prompts, eval). Every leaf slug the system can emit is defined here.",
+      "tags": [
+        "configuration",
+        "taxonomy",
+        "schema-definition",
+        "domain-knowledge"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Single source of truth — runtime taxonomy.py loads this file; emittable slugs are leaves only."
+    },
+    {
+      "id": "document:docs/context.md",
+      "type": "document",
+      "name": "context.md",
+      "filePath": "docs/context.md",
+      "summary": "Comprehensive design context covering why the project is self-hosted, hardware constraints, deploy topology, Colombian-specific domain knowledge, and operational gotchas. Designed to bootstrap fresh Claude Code sessions.",
+      "tags": [
+        "documentation",
+        "design-doc",
+        "context",
+        "onboarding"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:docs/plan.md",
+      "type": "document",
+      "name": "plan.md",
+      "filePath": "docs/plan.md",
+      "summary": "Technical plan with the seven cascade tiers detailed, status matrix of implemented vs pending work, prioritized roadmap, configuration surface, and maintenance runbooks.",
+      "tags": [
+        "documentation",
+        "design-doc",
+        "roadmap",
+        "runbook"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:eval/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "eval/__init__.py",
+      "summary": "Empty package marker that makes `eval/` an importable Python package for the offline evaluation harness.",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "package-marker"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:eval/baselines/v0.json",
+      "type": "config",
+      "name": "v0.json",
+      "filePath": "eval/baselines/v0.json",
+      "summary": "Pinned baseline metrics snapshot (flat accuracy, macro F1, per-parent F1, hierarchical F1, ECE per tier, tier shares, per-row predictions) that future eval runs are statistically compared against.",
+      "tags": [
+        "configuration",
+        "baseline",
+        "evaluation",
+        "metrics"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:eval/compare.py",
+      "type": "file",
+      "name": "compare.py",
+      "filePath": "eval/compare.py",
+      "summary": "Statistical promote/reject/inconclusive verdict engine: uses McNemar's exact test and paired bootstrap CIs on macro-F1 deltas to decide whether a candidate eval run beats the pinned baseline.",
+      "tags": [
+        "evaluation",
+        "statistics",
+        "comparison",
+        "regression-gate",
+        "tested"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:eval/compare.py:Verdict",
+      "type": "class",
+      "name": "Verdict",
+      "filePath": "eval/compare.py",
+      "lineRange": [
+        36,
+        45
+      ],
+      "summary": "Dataclass holding the promote/reject/inconclusive outcome plus supporting statistics (macro-F1 deltas, McNemar p-value, bootstrap CI bounds, worst-regressing parent slug).",
+      "tags": [
+        "data-model",
+        "evaluation",
+        "verdict",
+        "dataclass"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:eval/compare.py:mcnemar_p",
+      "type": "function",
+      "name": "mcnemar_p",
+      "filePath": "eval/compare.py",
+      "lineRange": [
+        52,
+        68
+      ],
+      "summary": "Computes McNemar's exact two-sided p-value over paired right/wrong outcomes from baseline vs candidate predictions.",
+      "tags": [
+        "statistics",
+        "hypothesis-test",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:eval/compare.py:paired_bootstrap_ci",
+      "type": "function",
+      "name": "paired_bootstrap_ci",
+      "filePath": "eval/compare.py",
+      "lineRange": [
+        86,
+        109
+      ],
+      "summary": "Bootstraps a confidence interval on the macro-F1 delta between baseline and candidate by resampling paired prediction outcomes.",
+      "tags": [
+        "statistics",
+        "bootstrap",
+        "confidence-interval"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/compare.py:decide",
+      "type": "function",
+      "name": "decide",
+      "filePath": "eval/compare.py",
+      "lineRange": [
+        121,
+        185
+      ],
+      "summary": "Combines macro-F1 delta, McNemar p-value, bootstrap CI, and per-parent regression magnitudes to emit a promote/reject/inconclusive verdict.",
+      "tags": [
+        "decision-logic",
+        "evaluation",
+        "regression-gate"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:eval/compare.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "eval/compare.py",
+      "lineRange": [
+        188,
+        222
+      ],
+      "summary": "CLI entry point that loads a baseline and candidate metrics JSON, runs decide(), and writes the verdict to disk.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "evaluation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:eval/eval.py",
+      "type": "file",
+      "name": "eval.py",
+      "filePath": "eval/eval.py",
+      "summary": "Offline evaluation harness: runs the categorizer over the gold set via HTTP, computes flat/macro/hierarchical F1, per-parent F1, adaptive ECE per tier, tier hits/share, and writes both JSON metrics and a Prometheus textfile.",
+      "tags": [
+        "evaluation",
+        "metrics",
+        "harness",
+        "async-http",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses httpx.AsyncClient with a semaphore-bounded concurrency pool; per-row predictions plus aggregate metrics are serialized via dataclasses."
+    },
+    {
+      "id": "class:eval/eval.py:GoldRow",
+      "type": "class",
+      "name": "GoldRow",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        35,
+        43
+      ],
+      "summary": "Dataclass describing one labeled gold-set transaction (external id, account slug, date, amount, description, expected category).",
+      "tags": [
+        "data-model",
+        "evaluation",
+        "dataclass"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:eval/eval.py:Prediction",
+      "type": "class",
+      "name": "Prediction",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        47,
+        55
+      ],
+      "summary": "Dataclass holding a single per-row prediction outcome: expected slug, predicted slug, confidence, source tier, latency, ok flag, and optional error.",
+      "tags": [
+        "data-model",
+        "evaluation",
+        "dataclass"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:eval/eval.py:EvalResult",
+      "type": "class",
+      "name": "EvalResult",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        59,
+        71
+      ],
+      "summary": "Aggregate eval result: source gold path, base URL, totals, flat/macro/hierarchical F1, per-parent F1, ECE per tier, tier hits and share, and the full predictions list.",
+      "tags": [
+        "data-model",
+        "evaluation",
+        "dataclass"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:eval/eval.py:_categorize_one",
+      "type": "function",
+      "name": "_categorize_one",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        86,
+        136
+      ],
+      "summary": "Async worker that POSTs one gold-set transaction to the categorizer's /v1/label endpoint and packs the response into a Prediction dataclass.",
+      "tags": [
+        "async-http",
+        "evaluation",
+        "worker"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/eval.py:macro_f1",
+      "type": "function",
+      "name": "macro_f1",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        157,
+        169
+      ],
+      "summary": "Computes macro-averaged F1 across all expected/predicted leaf slugs in the prediction set.",
+      "tags": [
+        "metrics",
+        "f1-score",
+        "evaluation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:eval/eval.py:per_parent_f1",
+      "type": "function",
+      "name": "per_parent_f1",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        172,
+        188
+      ],
+      "summary": "Collapses leaf slugs to their parent and computes F1 per parent category, surfacing which top-level categories are degrading.",
+      "tags": [
+        "metrics",
+        "f1-score",
+        "evaluation",
+        "hierarchical"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/eval.py:hierarchical_f1",
+      "type": "function",
+      "name": "hierarchical_f1",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        191,
+        217
+      ],
+      "summary": "Computes hierarchical F1 by counting matches across the ancestor set of each predicted/expected slug, giving partial credit for parent-level correctness.",
+      "tags": [
+        "metrics",
+        "f1-score",
+        "hierarchical"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/eval.py:adaptive_ece_per_tier",
+      "type": "function",
+      "name": "adaptive_ece_per_tier",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        220,
+        264
+      ],
+      "summary": "Computes adaptive Expected Calibration Error per cascade tier; uses netcal when available with sample-size-adaptive bin counts, else falls back to a manual equal-count binning implementation.",
+      "tags": [
+        "metrics",
+        "calibration",
+        "ece",
+        "evaluation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:eval/eval.py:to_prom_textfile",
+      "type": "function",
+      "name": "to_prom_textfile",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        274,
+        310
+      ],
+      "summary": "Renders an EvalResult as a Prometheus textfile-collector exposition with help/type lines for each metric family.",
+      "tags": [
+        "metrics",
+        "prometheus",
+        "export",
+        "observability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/eval.py:run_eval",
+      "type": "function",
+      "name": "run_eval",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        313,
+        340
+      ],
+      "summary": "Top-level async orchestrator that loads the gold set, fans out concurrent /v1/label requests under a semaphore, and assembles the EvalResult.",
+      "tags": [
+        "evaluation",
+        "orchestrator",
+        "async"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/eval.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "eval/eval.py",
+      "lineRange": [
+        343,
+        385
+      ],
+      "summary": "CLI entry point parsing args, running the eval, writing JSON and Prometheus output, and optionally invoking the renderer for diagnostic plots.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "evaluation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:eval/render.py",
+      "type": "file",
+      "name": "render.py",
+      "filePath": "eval/render.py",
+      "summary": "Diagnostic plot generator for eval metrics: per-parent F1 heatmap, tier-share bar chart, and per-tier reliability diagrams driven from raw per-row predictions.",
+      "tags": [
+        "evaluation",
+        "visualization",
+        "matplotlib",
+        "diagnostics"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses matplotlib in non-interactive (Agg) mode; adaptive binning falls back from netcal when sample sizes are small."
+    },
+    {
+      "id": "function:eval/render.py:_adaptive_bins",
+      "type": "function",
+      "name": "_adaptive_bins",
+      "filePath": "eval/render.py",
+      "lineRange": [
+        66,
+        93
+      ],
+      "summary": "Computes confidence-vs-accuracy bins for reliability diagrams using netcal's adaptive binning when available, else equal-count fallback.",
+      "tags": [
+        "calibration",
+        "binning",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/render.py:_reliability_diagram",
+      "type": "function",
+      "name": "_reliability_diagram",
+      "filePath": "eval/render.py",
+      "lineRange": [
+        96,
+        121
+      ],
+      "summary": "Renders a per-tier reliability diagram (predicted confidence vs empirical accuracy) annotated with overall ECE and sample count.",
+      "tags": [
+        "calibration",
+        "visualization",
+        "reliability-diagram"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:eval/render.py:run",
+      "type": "function",
+      "name": "run",
+      "filePath": "eval/render.py",
+      "lineRange": [
+        124,
+        157
+      ],
+      "summary": "Top-level rendering entry point that writes the heatmap, tier-share bars, and per-tier reliability diagrams under an output directory.",
+      "tags": [
+        "entry-point",
+        "visualization",
+        "evaluation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/export_ft_corpus.py",
+      "type": "file",
+      "name": "export_ft_corpus.py",
+      "filePath": "scripts/export_ft_corpus.py",
+      "summary": "Thin CLI wrapper that exports the user's labeled transaction corpus into JSONL training/eval files for the QLoRA fine-tune pipeline.",
+      "tags": [
+        "script",
+        "fine-tuning",
+        "data-export",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/sample_for_gold_v2.py",
+      "type": "file",
+      "name": "sample_for_gold_v2.py",
+      "filePath": "scripts/sample_for_gold_v2.py",
+      "summary": "Operational tool that pulls recent user corrections from the categorizer DB and stratified-samples a v2 gold set diversifying over slugs not yet covered in v1.",
+      "tags": [
+        "script",
+        "gold-set",
+        "sampling",
+        "evaluation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:scripts/sample_for_gold_v2.py:_fetch_correction_rows",
+      "type": "function",
+      "name": "_fetch_correction_rows",
+      "filePath": "scripts/sample_for_gold_v2.py",
+      "lineRange": [
+        64,
+        108
+      ],
+      "summary": "Async SQL query that joins predictions, corrections, taxonomy and own_accounts to extract candidate transactions for gold sampling since a given cutoff date.",
+      "tags": [
+        "database",
+        "sql",
+        "async",
+        "etl"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:scripts/sample_for_gold_v2.py:_diversity_sample",
+      "type": "function",
+      "name": "_diversity_sample",
+      "filePath": "scripts/sample_for_gold_v2.py",
+      "lineRange": [
+        111,
+        132
+      ],
+      "summary": "Stratified sampler that prefers slugs not present in v1 first, then fills the remaining target count from the rest, with a deterministic RNG seed.",
+      "tags": [
+        "sampling",
+        "stratification",
+        "evaluation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/sample_for_gold_v2.py:run",
+      "type": "function",
+      "name": "run",
+      "filePath": "scripts/sample_for_gold_v2.py",
+      "lineRange": [
+        159,
+        197
+      ],
+      "summary": "CLI entry point: parses args, runs the SQL fetch, applies diversity sampling, writes the candidate gold JSONL, and prints slug/parent coverage stats.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "evaluation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/seed_gold_set.py",
+      "type": "file",
+      "name": "seed_gold_set.py",
+      "filePath": "scripts/seed_gold_set.py",
+      "summary": "One-off script that replays the JSONL gold set against a running categorizer API to seed the labeled history table (used to bootstrap a fresh deployment).",
+      "tags": [
+        "script",
+        "seeding",
+        "cli",
+        "bootstrap"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/seed_gold_set.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "scripts/seed_gold_set.py",
+      "lineRange": [
+        28,
+        72
+      ],
+      "summary": "Iterates the gold JSONL, POSTs each row as a labeled transaction to the categorizer API, and prints per-row outcomes.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "http-client"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/sync_miplata_accounts.py",
+      "type": "file",
+      "name": "sync_miplata_accounts.py",
+      "filePath": "scripts/sync_miplata_accounts.py",
+      "summary": "Operational sync job that matches Sebas's miplata accounts to categorizer own_accounts using bank-name aliases plus account-tail digits and writes back the resolved miplata_id.",
+      "tags": [
+        "script",
+        "sync",
+        "etl",
+        "operational"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Bank-name aliasing (BBVA/Bancolombia/Nequi/Davivienda variants) is hard-coded in `_BANK_ALIASES`; matching is conservative — ambiguous matches are skipped, not guessed."
+    },
+    {
+      "id": "function:scripts/sync_miplata_accounts.py:_match",
+      "type": "function",
+      "name": "_match",
+      "filePath": "scripts/sync_miplata_accounts.py",
+      "lineRange": [
+        114,
+        141
+      ],
+      "summary": "Resolves one miplata account to a categorizer own_account using institution alias + account tail digits; refuses ambiguous matches.",
+      "tags": [
+        "matching",
+        "heuristic",
+        "data-quality"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/sync_miplata_accounts.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "scripts/sync_miplata_accounts.py",
+      "lineRange": [
+        144,
+        189
+      ],
+      "summary": "CLI entry point: fetches both account sources, runs matcher, writes mapping rows for matches, and prints matched/unmatched summaries.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "operational"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "tests/__init__.py",
+      "summary": "Empty package marker that makes `tests/` an importable Python package for pytest discovery.",
+      "tags": [
+        "test",
+        "package-marker",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/conftest.py",
+      "type": "file",
+      "name": "conftest.py",
+      "filePath": "tests/conftest.py",
+      "summary": "Pytest configuration adding the repo root and `src/` to `sys.path` so tests can import the `categorizer` package without an editable install.",
+      "tags": [
+        "test",
+        "configuration",
+        "pytest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/test_cascade_paired_tx.py",
+      "type": "file",
+      "name": "test_cascade_paired_tx.py",
+      "filePath": "tests/test_cascade_paired_tx.py",
+      "summary": "Unit tests for the paired-tx internal-transfer detection in the cascade: account-slug resolution (friendly vs UUID), pair lookup, and no-crash behavior for unresolved UUIDs.",
+      "tags": [
+        "test",
+        "cascade",
+        "internal-transfer",
+        "unit-test"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/test_cascade_reject_gate.py",
+      "type": "file",
+      "name": "test_cascade_reject_gate.py",
+      "filePath": "tests/test_cascade_reject_gate.py",
+      "summary": "Unit tests verifying the cascade's reject gate: LLM-proposed internal transfers without an own-account text match are rejected, paired-tx hits win over LLM, and non-transfer LLM predictions pass through.",
+      "tags": [
+        "test",
+        "cascade",
+        "reject-gate",
+        "llm",
+        "unit-test"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:tests/test_eval_compare.py",
+      "type": "file",
+      "name": "test_eval_compare.py",
+      "filePath": "tests/test_eval_compare.py",
+      "summary": "Unit tests for the eval.compare module: McNemar p-value extremes, paired bootstrap CI sanity, and decide() outcomes for promote/reject/inconclusive scenarios.",
+      "tags": [
+        "test",
+        "evaluation",
+        "statistics",
+        "unit-test"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/test_eval_metrics.py",
+      "type": "file",
+      "name": "test_eval_metrics.py",
+      "filePath": "tests/test_eval_metrics.py",
+      "summary": "Unit tests for the eval metric functions: flat/macro/hierarchical F1, per-parent F1, tier hits/share normalization, adaptive ECE small-tier skipping, and Prometheus textfile contents.",
+      "tags": [
+        "test",
+        "evaluation",
+        "metrics",
+        "unit-test"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/test_llm_prompts.py",
+      "type": "file",
+      "name": "test_llm_prompts.py",
+      "filePath": "tests/test_llm_prompts.py",
+      "summary": "Tests that the LLM message builder frames kNN retrieved examples as hints (not gold) in both system and user prompts.",
+      "tags": [
+        "test",
+        "llm",
+        "prompt-engineering",
+        "unit-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/test_normalize.py",
+      "type": "file",
+      "name": "test_normalize.py",
+      "filePath": "tests/test_normalize.py",
+      "summary": "Parametrized unit tests for transaction-description normalization: expected token presence, lowercasing, ñ preservation, and idempotence.",
+      "tags": [
+        "test",
+        "normalize",
+        "spanish",
+        "unit-test"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/test_rules.py",
+      "type": "file",
+      "name": "test_rules.py",
+      "filePath": "tests/test_rules.py",
+      "summary": "Unit tests for the deterministic rules tier and the internal-transfer text resolver: text-matched transfers, own-account requirement, counterparty requirement, and rule-tier slug emission/fall-through.",
+      "tags": [
+        "test",
+        "rules",
+        "internal-transfer",
+        "unit-test"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:tests/test_taxonomy.py",
+      "type": "file",
+      "name": "test_taxonomy.py",
+      "filePath": "tests/test_taxonomy.py",
+      "summary": "Unit tests that emittable slugs in the loaded taxonomy are leaves, exclude parents, include the `pendiente` fallback, and are all marked implemented.",
+      "tags": [
+        "test",
+        "taxonomy",
+        "unit-test"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:training/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "training/README.md",
+      "summary": "Step-by-step runbook for the QLoRA fine-tune pipeline: export corpus on VPS, spin up a RunPod pod, install deps, train, eval, convert to GGUF, deploy, A/B verify, and rollback procedure.",
+      "tags": [
+        "documentation",
+        "runbook",
+        "fine-tuning",
+        "qlora"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:training/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "training/__init__.py",
+      "summary": "Package marker for the offline `training` package; the docstring notes the package only runs on a RunPod pod, never inside the runtime API container.",
+      "tags": [
+        "entry-point",
+        "barrel",
+        "package-marker",
+        "training"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:training/dataset.py",
+      "type": "file",
+      "name": "dataset.py",
+      "filePath": "training/dataset.py",
+      "summary": "Builds the QLoRA training corpus: queries labeled corrections from the categorizer DB, formats each row as a ChatML user/assistant pair, splits train/eval, and writes JSONL files.",
+      "tags": [
+        "fine-tuning",
+        "data-export",
+        "chatml",
+        "etl"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:training/dataset.py:TrainingRow",
+      "type": "class",
+      "name": "TrainingRow",
+      "filePath": "training/dataset.py",
+      "lineRange": [
+        42,
+        47
+      ],
+      "summary": "Dataclass holding one ChatML-formatted training example (external id plus messages list); serializes itself to a JSONL line.",
+      "tags": [
+        "data-model",
+        "fine-tuning",
+        "dataclass"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:training/dataset.py:fetch_rows",
+      "type": "function",
+      "name": "fetch_rows",
+      "filePath": "training/dataset.py",
+      "lineRange": [
+        82,
+        135
+      ],
+      "summary": "Queries the categorizer DB for labeled corrections, builds user/assistant ChatML messages with rich features (amount, currency, normalized text, date, account slug), and returns TrainingRow objects.",
+      "tags": [
+        "database",
+        "etl",
+        "fine-tuning"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:training/dataset.py:export",
+      "type": "function",
+      "name": "export",
+      "filePath": "training/dataset.py",
+      "lineRange": [
+        146,
+        172
+      ],
+      "summary": "Orchestrates fetch_rows + split_rows + JSONL writing, enforcing a minimum row count threshold and producing train.jsonl and eval.jsonl in the out dir.",
+      "tags": [
+        "fine-tuning",
+        "export",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:training/eval_ft.py",
+      "type": "file",
+      "name": "eval_ft.py",
+      "filePath": "training/eval_ft.py",
+      "summary": "On-pod evaluation script for the fine-tuned merged model: loads tokenizer/model with transformers, generates predictions over the eval JSONL, and writes flat-accuracy metrics. Supports a dry-run mode that just prints planned actions.",
+      "tags": [
+        "fine-tuning",
+        "evaluation",
+        "transformers",
+        "cli"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:training/eval_ft.py:_run",
+      "type": "function",
+      "name": "_run",
+      "filePath": "training/eval_ft.py",
+      "lineRange": [
+        39,
+        89
+      ],
+      "summary": "Loads the merged fine-tuned model, applies the chat template per eval row, generates a JSON answer, compares predicted vs expected category slug, and writes accuracy metrics.",
+      "tags": [
+        "fine-tuning",
+        "evaluation",
+        "transformers",
+        "inference"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:training/eval_ft.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "training/eval_ft.py",
+      "lineRange": [
+        92,
+        105
+      ],
+      "summary": "CLI entry point with dry-run flag; dispatches to _dry_run or _run depending on whether transformers is expected to be installed.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "fine-tuning"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:training/train.py",
+      "type": "file",
+      "name": "train.py",
+      "filePath": "training/train.py",
+      "summary": "QLoRA fine-tune trainer using Unsloth + TRL SFTTrainer on Qwen3-4B: loads the JSONL train set, configures 4-bit adapters, runs the trainer, and saves merged 16-bit weights. Supports a dry-run mode that prints planned actions.",
+      "tags": [
+        "fine-tuning",
+        "qlora",
+        "unsloth",
+        "trainer"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Unsloth (FastLanguageModel) + TRL SFTConfig/SFTTrainer; meant to run on a RunPod GPU pod, not inside the runtime API container."
+    },
+    {
+      "id": "function:training/train.py:_train",
+      "type": "function",
+      "name": "_train",
+      "filePath": "training/train.py",
+      "lineRange": [
+        46,
+        114
+      ],
+      "summary": "Real training path: loads Qwen3-4B with FastLanguageModel, applies PEFT/LoRA, loads the JSONL training dataset, runs SFTTrainer.train, and saves merged 16-bit weights.",
+      "tags": [
+        "fine-tuning",
+        "qlora",
+        "trainer",
+        "training-loop"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:training/train.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "training/train.py",
+      "lineRange": [
+        117,
+        140
+      ],
+      "summary": "CLI entry point parsing training hyperparameters (model id, batch sizes, LR, LoRA rank, etc.) and dispatching to _dry_run or _train.",
+      "tags": [
+        "entry-point",
+        "cli",
+        "fine-tuning"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:alembic/env.py",
+      "target": "file:src/categorizer/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/env.py",
+      "target": "file:src/categorizer/storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/metrics.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/normalize.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/retrieval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/llm.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/merchant.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/normalize.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/retrieval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/rules.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:src/categorizer/tools.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/features.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/llm.py",
+      "target": "file:src/categorizer/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "file:src/categorizer/api.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "file:src/categorizer/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "file:src/categorizer/logging_setup.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/merchant.py",
+      "target": "file:src/categorizer/storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "file:src/categorizer/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "file:src/categorizer/metrics.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "file:src/categorizer/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/tools.py",
+      "target": "file:src/categorizer/merchant.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/categorizer/tools.py",
+      "target": "file:src/categorizer/storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/env.py",
+      "target": "function:alembic/env.py:run_migrations_online",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "function:alembic/versions/0001_initial.py:upgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "function:alembic/versions/0001_initial.py:downgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "target": "function:alembic/versions/0002_seed_own_accounts_and_merchants.py:upgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:categorize_endpoint",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:label_endpoint",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:list_uncertain",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:get_taxonomy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:list_own_accounts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "function:src/categorizer/cascade.py:categorize",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "function:src/categorizer/cascade.py:_paired_internal_transfer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "function:src/categorizer/cascade.py:_build_llm_messages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/config.py",
+      "target": "class:src/categorizer/config.py:Settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/features.py",
+      "target": "function:src/categorizer/features.py:detect_recurring",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/llm.py",
+      "target": "function:src/categorizer/llm.py:classify",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/llm.py",
+      "target": "function:src/categorizer/llm.py:build_category_schema",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/llm.py",
+      "target": "class:src/categorizer/llm.py:LLMResponse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "function:src/categorizer/main.py:create_app",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "function:src/categorizer/main.py:lifespan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/merchant.py",
+      "target": "function:src/categorizer/merchant.py:lookup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/merchant.py",
+      "target": "class:src/categorizer/merchant.py:MerchantMatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/normalize.py",
+      "target": "function:src/categorizer/normalize.py:normalize",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "class:src/categorizer/retrieval.py:EmbeddingModel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "function:src/categorizer/retrieval.py:knn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "function:src/categorizer/retrieval.py:vote",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "class:src/categorizer/retrieval.py:RetrievedNeighbor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "function:src/categorizer/rules.py:resolve_internal_transfer_by_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "function:src/categorizer/rules.py:match",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "class:src/categorizer/rules.py:RuleHit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:TransactionIn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:CategorizationResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:LabelIn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:OwnAccountRef",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:RetrievedExample",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:LabeledTransaction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:Prediction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:Correction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:Merchant",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "class:src/categorizer/taxonomy.py:Taxonomy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "function:src/categorizer/taxonomy.py:load_taxonomy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "class:src/categorizer/taxonomy.py:Category",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/tools.py",
+      "target": "function:src/categorizer/tools.py:dispatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/tools.py",
+      "target": "class:src/categorizer/tools.py:ToolCallResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:categorize_endpoint",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:label_endpoint",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:list_uncertain",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:get_taxonomy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/api.py",
+      "target": "function:src/categorizer/api.py:list_own_accounts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "function:src/categorizer/cascade.py:categorize",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/config.py",
+      "target": "class:src/categorizer/config.py:Settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/features.py",
+      "target": "function:src/categorizer/features.py:detect_recurring",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/llm.py",
+      "target": "function:src/categorizer/llm.py:classify",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/llm.py",
+      "target": "class:src/categorizer/llm.py:LLMResponse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/main.py",
+      "target": "function:src/categorizer/main.py:create_app",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/merchant.py",
+      "target": "function:src/categorizer/merchant.py:lookup",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/merchant.py",
+      "target": "class:src/categorizer/merchant.py:MerchantMatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/normalize.py",
+      "target": "function:src/categorizer/normalize.py:normalize",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "class:src/categorizer/retrieval.py:EmbeddingModel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "function:src/categorizer/retrieval.py:knn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "function:src/categorizer/retrieval.py:vote",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/retrieval.py",
+      "target": "class:src/categorizer/retrieval.py:RetrievedNeighbor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "function:src/categorizer/rules.py:match",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "class:src/categorizer/rules.py:RuleHit",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:TransactionIn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:CategorizationResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:LabelIn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:OwnAccountRef",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/schemas.py",
+      "target": "class:src/categorizer/schemas.py:RetrievedExample",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:LabeledTransaction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:Prediction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:Correction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/storage.py",
+      "target": "class:src/categorizer/storage.py:Merchant",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "class:src/categorizer/taxonomy.py:Taxonomy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "function:src/categorizer/taxonomy.py:load_taxonomy",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "class:src/categorizer/taxonomy.py:Category",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/tools.py",
+      "target": "function:src/categorizer/tools.py:dispatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/categorizer/tools.py",
+      "target": "class:src/categorizer/tools.py:ToolCallResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "config:alembic.ini",
+      "target": "file:alembic/env.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:pyproject.toml",
+      "target": "file:src/categorizer/main.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:pyproject.toml",
+      "target": "file:src/categorizer/__init__.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:Dockerfile",
+      "target": "file:src/categorizer/main.py",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "service:Dockerfile",
+      "target": "file:alembic/env.py",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "pipeline:infra/jenkins/Jenkinsfile",
+      "target": "service:Dockerfile",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:infra/jenkins/Jenkinsfile",
+      "target": "file:alembic/env.py",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:infra/jenkins/Jenkinsfile",
+      "target": "file:src/categorizer/main.py",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "class:src/categorizer/storage.py:LabeledTransaction",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "class:src/categorizer/storage.py:Prediction",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "class:src/categorizer/storage.py:Correction",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0001_initial.py",
+      "target": "class:src/categorizer/storage.py:Merchant",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "target": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "target": "class:src/categorizer/storage.py:Merchant",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0003_jsonb_aliases.py",
+      "target": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0003_jsonb_aliases.py",
+      "target": "class:src/categorizer/storage.py:Merchant",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0004_own_accounts_miplata_id.py",
+      "target": "class:src/categorizer/storage.py:OwnAccount",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:alembic/versions/0005_seed_carcass_merchants.py",
+      "target": "class:src/categorizer/storage.py:Merchant",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "file:eval/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "file:eval/render.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:scripts/export_ft_corpus.py",
+      "target": "file:training/dataset.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_paired_tx.py",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_paired_tx.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_paired_tx.py",
+      "target": "file:src/categorizer/storage.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_reject_gate.py",
+      "target": "file:src/categorizer/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_reject_gate.py",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_reject_gate.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_cascade_reject_gate.py",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_eval_compare.py",
+      "target": "file:eval/compare.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_eval_metrics.py",
+      "target": "file:eval/eval.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_llm_prompts.py",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_llm_prompts.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_llm_prompts.py",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_normalize.py",
+      "target": "file:src/categorizer/normalize.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_rules.py",
+      "target": "file:src/categorizer/normalize.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_rules.py",
+      "target": "file:src/categorizer/rules.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_rules.py",
+      "target": "file:src/categorizer/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_taxonomy.py",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "class:eval/compare.py:Verdict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:mcnemar_p",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:paired_bootstrap_ci",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:decide",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "class:eval/eval.py:GoldRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "class:eval/eval.py:Prediction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "class:eval/eval.py:EvalResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:_categorize_one",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:macro_f1",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:per_parent_f1",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:hierarchical_f1",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:adaptive_ece_per_tier",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:to_prom_textfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:run_eval",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/render.py",
+      "target": "function:eval/render.py:_adaptive_bins",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/render.py",
+      "target": "function:eval/render.py:_reliability_diagram",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/render.py",
+      "target": "function:eval/render.py:run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/sample_for_gold_v2.py",
+      "target": "function:scripts/sample_for_gold_v2.py:_fetch_correction_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/sample_for_gold_v2.py",
+      "target": "function:scripts/sample_for_gold_v2.py:_diversity_sample",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/sample_for_gold_v2.py",
+      "target": "function:scripts/sample_for_gold_v2.py:run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/seed_gold_set.py",
+      "target": "function:scripts/seed_gold_set.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/sync_miplata_accounts.py",
+      "target": "function:scripts/sync_miplata_accounts.py:_match",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/sync_miplata_accounts.py",
+      "target": "function:scripts/sync_miplata_accounts.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/dataset.py",
+      "target": "class:training/dataset.py:TrainingRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/dataset.py",
+      "target": "function:training/dataset.py:fetch_rows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/dataset.py",
+      "target": "function:training/dataset.py:export",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/eval_ft.py",
+      "target": "function:training/eval_ft.py:_run",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/eval_ft.py",
+      "target": "function:training/eval_ft.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/train.py",
+      "target": "function:training/train.py:_train",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:training/train.py",
+      "target": "function:training/train.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "class:eval/compare.py:Verdict",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:mcnemar_p",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:paired_bootstrap_ci",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:decide",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "function:eval/compare.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "class:eval/eval.py:GoldRow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "class:eval/eval.py:Prediction",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "class:eval/eval.py:EvalResult",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:macro_f1",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:per_parent_f1",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:hierarchical_f1",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:adaptive_ece_per_tier",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:to_prom_textfile",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:run_eval",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "function:eval/eval.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/render.py",
+      "target": "function:eval/render.py:run",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:training/dataset.py",
+      "target": "class:training/dataset.py:TrainingRow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:training/dataset.py",
+      "target": "function:training/dataset.py:fetch_rows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:training/dataset.py",
+      "target": "function:training/dataset.py:export",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:eval/compare.py",
+      "target": "file:tests/test_eval_compare.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "file:tests/test_eval_metrics.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:tests/test_cascade_paired_tx.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:tests/test_cascade_reject_gate.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:src/categorizer/cascade.py",
+      "target": "file:tests/test_llm_prompts.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:src/categorizer/normalize.py",
+      "target": "file:tests/test_normalize.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:src/categorizer/rules.py",
+      "target": "file:tests/test_rules.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "file:src/categorizer/taxonomy.py",
+      "target": "file:tests/test_taxonomy.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "Direction corrected (was test → production)"
+    },
+    {
+      "source": "config:config/taxonomy.yaml",
+      "target": "file:src/categorizer/taxonomy.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:config/taxonomy.yaml",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:eval/baselines/v0.json",
+      "target": "file:eval/compare.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "table:config/gold_set_v1.jsonl",
+      "target": "file:eval/eval.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "table:config/gold_set_v1.jsonl",
+      "target": "file:scripts/seed_gold_set.py",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "config:config/taxonomy.yaml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/context.md",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/context.md",
+      "target": "config:config/taxonomy.yaml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/plan.md",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/plan.md",
+      "target": "file:eval/eval.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/plan.md",
+      "target": "config:config/taxonomy.yaml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:training/README.md",
+      "target": "file:training/train.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:training/README.md",
+      "target": "file:training/dataset.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:training/README.md",
+      "target": "file:training/eval_ft.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:training/README.md",
+      "target": "file:scripts/export_ft_corpus.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:eval/eval.py",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/seed_gold_set.py",
+      "target": "file:src/categorizer/cascade.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:training/train.py",
+      "target": "file:training/dataset.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:training/eval_ft.py",
+      "target": "file:training/dataset.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:scripts/sample_for_gold_v2.py",
+      "target": "table:config/gold_set_v1.jsonl",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:api",
+      "name": "API Layer",
+      "description": "Thin FastAPI HTTP surface that exposes the categorizer cascade through /v1/categorize, /v1/label, /v1/taxonomy, /healthz, and /metrics, wiring lifespan, taxonomy bootstrap, and the api router from main.py.",
+      "nodeIds": [
+        "file:src/categorizer/api.py",
+        "file:src/categorizer/main.py"
+      ]
+    },
+    {
+      "id": "layer:cascade",
+      "name": "Cascade Orchestration",
+      "description": "Heart of the system: cascade.py orchestrates the seven-tier deterministic-to-probabilistic pipeline (normalize -> features -> rules -> kNN -> LLM-with-tools -> LLM-thinking -> reject), with features.py providing deterministic signals consumed along the way.",
+      "nodeIds": [
+        "file:src/categorizer/cascade.py",
+        "file:src/categorizer/features.py"
+      ]
+    },
+    {
+      "id": "layer:categorization-tiers",
+      "name": "Categorization Tiers",
+      "description": "The interchangeable strategies the cascade dispatches to: regex rules, merchant dictionary lookup, pgvector + fastembed kNN retrieval, the self-hosted Qwen3 LLM client, and the JSON-schema tool catalogue the LLM can call back into.",
+      "nodeIds": [
+        "file:src/categorizer/rules.py",
+        "file:src/categorizer/retrieval.py",
+        "file:src/categorizer/merchant.py",
+        "file:src/categorizer/llm.py",
+        "file:src/categorizer/tools.py"
+      ]
+    },
+    {
+      "id": "layer:domain-foundations",
+      "name": "Domain Model & Platform Foundations",
+      "description": "Categorization primitives shared across every tier (Pydantic schemas, hierarchical taxonomy loader, Colombian-Spanish text normalizer) together with cross-cutting platform support: Pydantic-Settings configuration, structlog setup, and the Prometheus metrics registry.",
+      "nodeIds": [
+        "file:src/categorizer/schemas.py",
+        "file:src/categorizer/taxonomy.py",
+        "file:src/categorizer/normalize.py",
+        "file:src/categorizer/__init__.py",
+        "file:src/categorizer/config.py",
+        "file:src/categorizer/logging_setup.py",
+        "file:src/categorizer/metrics.py"
+      ]
+    },
+    {
+      "id": "layer:persistence",
+      "name": "Persistence & Migrations",
+      "description": "SQLAlchemy 2.x async ORM layer (storage.py: OwnAccount, LabeledTransaction with pgvector column, Prediction, Merchant) paired with the Alembic environment, template, and the five versioned migrations that build and seed the Postgres + pgvector schema.",
+      "nodeIds": [
+        "file:src/categorizer/storage.py",
+        "file:alembic/env.py",
+        "file:alembic/script.py.mako",
+        "file:alembic/versions/0001_initial.py",
+        "file:alembic/versions/0002_seed_own_accounts_and_merchants.py",
+        "file:alembic/versions/0003_jsonb_aliases.py",
+        "file:alembic/versions/0004_own_accounts_miplata_id.py",
+        "file:alembic/versions/0005_seed_carcass_merchants.py"
+      ]
+    },
+    {
+      "id": "layer:eval",
+      "name": "Offline Evaluation Harness",
+      "description": "Standalone evaluation tooling that replays the gold set through the runtime cascade, compares runs against the v0 baseline, and renders per-tier metrics reports - kept deliberately separate from the runtime path and from training.",
+      "nodeIds": [
+        "file:eval/__init__.py",
+        "file:eval/compare.py",
+        "file:eval/eval.py",
+        "file:eval/render.py"
+      ]
+    },
+    {
+      "id": "layer:training",
+      "name": "Fine-Tune Training Pipeline",
+      "description": "RunPod-only QLoRA fine-tuning pipeline built on Unsloth, PEFT, TRL, and bitsandbytes: dataset construction, training entry point, and post-training evaluation of the fine-tuned LLM checkpoint.",
+      "nodeIds": [
+        "file:training/__init__.py",
+        "file:training/dataset.py",
+        "file:training/eval_ft.py",
+        "file:training/train.py"
+      ]
+    },
+    {
+      "id": "layer:scripts",
+      "name": "Operational Scripts",
+      "description": "One-shot CLI utilities for data ops: exporting the fine-tune corpus, sampling and seeding gold-set v2, and syncing own-account metadata from the upstream Miplata system.",
+      "nodeIds": [
+        "file:scripts/export_ft_corpus.py",
+        "file:scripts/sample_for_gold_v2.py",
+        "file:scripts/seed_gold_set.py",
+        "file:scripts/sync_miplata_accounts.py"
+      ]
+    },
+    {
+      "id": "layer:tests",
+      "name": "Tests",
+      "description": "pytest + pytest-asyncio suite covering normalization, the rules tier, taxonomy lookups, cascade behaviour on paired transactions and the reject gate, LLM prompt construction, and the eval harness itself, with shared fixtures in conftest.py.",
+      "nodeIds": [
+        "file:tests/__init__.py",
+        "file:tests/conftest.py",
+        "file:tests/test_cascade_paired_tx.py",
+        "file:tests/test_cascade_reject_gate.py",
+        "file:tests/test_eval_compare.py",
+        "file:tests/test_eval_metrics.py",
+        "file:tests/test_llm_prompts.py",
+        "file:tests/test_normalize.py",
+        "file:tests/test_rules.py",
+        "file:tests/test_taxonomy.py"
+      ]
+    },
+    {
+      "id": "layer:build-deploy-meta",
+      "name": "Build, Deploy & Project Meta",
+      "description": "Container build (multi-stage Dockerfile running uvicorn), Jenkins CI pipeline, Python/Alembic project configuration, the taxonomy YAML and gold-set data assets, the eval v0 baseline, and project documentation (README plus docs/context.md, docs/plan.md, and the training runbook).",
+      "nodeIds": [
+        "service:Dockerfile",
+        "pipeline:infra/jenkins/Jenkinsfile",
+        "config:alembic.ini",
+        "config:pyproject.toml",
+        "config:config/taxonomy.yaml",
+        "table:config/gold_set_v1.jsonl",
+        "config:eval/baselines/v0.json",
+        "document:README.md",
+        "document:docs/context.md",
+        "document:docs/plan.md",
+        "document:training/README.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview & Self-Host Manifesto",
+      "description": "Start with the README to understand what miplata-categorizer is and the constraints that shape every other file in the repo: a self-hosted Colombian-Spanish personal-finance categorizer that must beat a stateless Claude-Sonnet call on a modest CPU VPS, with no API fallbacks. The README sketches the seven-tier cascade (normalize → rules → kNN → LLM-with-tools → LLM-thinking → reject) and the repo layout the rest of this tour will explore. docs/context.md and docs/plan.md go deeper on the why (hardware budget, Colombian domain quirks, deploy topology) and the how (per-tier status matrix and roadmap) — skim them now and refer back as the tour unfolds.",
+      "nodeIds": [
+        "document:README.md",
+        "document:docs/context.md",
+        "document:docs/plan.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Application Boot: FastAPI Factory",
+      "description": "main.py is the entry point uvicorn targets from the Dockerfile CMD and the root of the BFS dependency tree. In its lifespan it bootstraps structlog logging, parses config/taxonomy.yaml into app.state, and mounts the api router — so by the time the first request lands, the taxonomy tree and logger are already in place. Everything you see in later steps is reached by following imports outward from this 30-line file.",
+      "nodeIds": [
+        "file:src/categorizer/main.py",
+        "file:src/categorizer/logging_setup.py"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "HTTP Surface: The Five Endpoints",
+      "description": "api.py is the only place HTTP touches the system. It exposes /healthz and /metrics for ops, POST /v1/categorize which runs the cascade and records a Prediction row, POST /v1/label which writes a LabeledTransaction (plus an embedding) and a Correction when the user disagrees with a previous prediction, and GET /v1/taxonomy / /v1/own_accounts for the upstream Miplata UI. Notice how thin this layer is: every endpoint is a few lines of glue that delegates to the cascade or the ORM — the actual logic lives downstream.",
+      "nodeIds": [
+        "file:src/categorizer/api.py",
+        "file:src/categorizer/schemas.py"
+      ],
+      "languageLesson": "FastAPI dependency injection (Depends) is the idiomatic way to scope per-request resources like a SQLAlchemy AsyncSession. Paired with Pydantic models in schemas.py, request/response bodies validate themselves at the boundary, so internal code can trust its inputs."
+    },
+    {
+      "order": 4,
+      "title": "Configuration & Cross-Cutting Foundations",
+      "description": "Every tier from here on reads thresholds, DB URLs, the LLM endpoint, and the taxonomy path from one place: config.py's cached get_settings() singleton. pyproject.toml declares the dependency stack (FastAPI, SQLAlchemy async + pgvector, OpenAI client, fastembed, structlog) and the Ruff / pytest tool config. metrics.py is the Prometheus registry that downstream tiers increment, surfaced at the /metrics endpoint you saw in Step 3.",
+      "nodeIds": [
+        "file:src/categorizer/config.py",
+        "config:pyproject.toml",
+        "file:src/categorizer/metrics.py"
+      ],
+      "languageLesson": "Pydantic-Settings reads environment variables and .env files with the same validation engine as Pydantic models. Combined with functools.lru_cache on get_settings(), you get a strongly-typed, lazily-loaded, singleton config object — the canonical Python pattern for 12-factor apps."
+    },
+    {
+      "order": 5,
+      "title": "Domain Primitives: Normalize & Taxonomy",
+      "description": "Before any tier can match anything, raw Colombian bank text must be tamed. normalize.py is Spanish-aware: it strips accents while preserving ñ/Ñ, drops noisy timestamp/reference tokens (the *, COMPRA, PSE, NEQUI* boilerplate from the README's cascade diagram) and lowercases. taxonomy.py loads config/taxonomy.yaml into an immutable in-memory tree and is the single source of truth for which slugs the system is allowed to emit — every tier validates its output against emittable_slugs().",
+      "nodeIds": [
+        "file:src/categorizer/normalize.py",
+        "file:src/categorizer/taxonomy.py",
+        "config:config/taxonomy.yaml"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "The Cascade Orchestrator",
+      "description": "cascade.py is the heart of the project — the file with the highest fan-in (10) and fan-out (14) in the entire graph. It walks one transaction through up to seven tiers in deterministic-to-probabilistic order (normalize → rules → paired internal transfer → merchant dict → kNN vote → LLM no_think with tools → LLM /think), short-circuiting whenever a tier returns a result above its confidence threshold, and emits a CategorizationResult with a full tier_trace so /metrics and the eval harness can see which tier won each row. Every subsequent step in this tour is a tier the cascade dispatches to.",
+      "nodeIds": [
+        "file:src/categorizer/cascade.py",
+        "file:src/categorizer/features.py"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Deterministic Tiers: Rules & Merchant Dictionary",
+      "description": "The two cheapest tiers handle ~40% of volume per the README. rules.py is a regex catalogue mapping Colombian-Spanish phrases (PSE, COMPRA, NEQUI envíos, DVP) to category slugs, plus the text-only internal-transfer resolver that matches counterparty hints against own_accounts aliases. merchant.py is a database-backed dictionary that first tries a JSONB-containment alias lookup against the merchants table and falls back to canonical_name substring scanning. Both return high-confidence results that let the cascade skip the expensive LLM tier entirely.",
+      "nodeIds": [
+        "file:src/categorizer/rules.py",
+        "file:src/categorizer/merchant.py"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Probabilistic Tier: pgvector kNN Retrieval",
+      "description": "When the deterministic tiers fall through, retrieval.py reaches into the user's labeled history. It lazily loads paraphrase-multilingual-MiniLM-L12-v2 via fastembed as a singleton (loading once per process is critical on a CPU VPS), embeds the normalized text, runs a cosine-similarity kNN against the labeled_transactions table's pgvector column scoped by account_slug, and votes a category weighted by similarity. This is the tier that makes the system personal — accuracy grows with the user's own corrections.",
+      "nodeIds": [
+        "file:src/categorizer/retrieval.py"
+      ],
+      "languageLesson": "pgvector extends Postgres with a vector column type and ANN indexes (here ivfflat). Querying with the <-> / <=> / <#> operators returns ordered neighbors directly from SQL, so the kNN tier is one SELECT — no separate vector store, no extra service to operate."
+    },
+    {
+      "order": 9,
+      "title": "LLM Tier: Self-Hosted Qwen3 With Tool Use",
+      "description": "The tail of the cascade is the small LLM. llm.py is a thin async client over the OpenAI SDK pointed at a self-hosted llama-server running Qwen3-4B-Instruct-2507: it builds a JSON-schema-constrained response so the model can only emit valid taxonomy slugs, supports tool-calling, and toggles a /think suffix to flip the same model into reasoning mode on the second pass (the LLM-thinking tier in the cascade). tools.py is the catalogue of callbacks the LLM may invoke — merchant_lookup, similar_transactions, monthly_sum_by_description, taxonomy_path, internal_transfer_check — each dispatching against the live SQLAlchemy session so the model can pull retrieval evidence on demand.",
+      "nodeIds": [
+        "file:src/categorizer/llm.py",
+        "file:src/categorizer/tools.py"
+      ],
+      "languageLesson": "JSON-schema grammar (also called constrained / structured output) forces the LLM to sample only tokens that keep the response valid against a schema. Combined with tool-calling, the model becomes a slot-filler with retrieval — much more reliable than free-form generation, and the only practical way to run a 4B-parameter model in production."
+    },
+    {
+      "order": 10,
+      "title": "Persistence: SQLAlchemy Models & Alembic Migrations",
+      "description": "storage.py declares the SQLAlchemy 2.x async ORM: OwnAccount (with aliases JSONB and the miplata_account_id back-reference), LabeledTransaction (with its 384-dim pgvector embedding column), Prediction, Correction, and Merchant. The Alembic migrations build that schema incrementally: 0001 enables the pgvector extension and creates the tables with an ivfflat index, 0002 seeds the personal own_accounts and the initial Colombian merchant dictionary, 0003 upgrades aliases to JSONB so the containment operator from Step 7 works, 0004 adds the miplata_account_id back-reference, and 0005 seeds the second merchant wave. alembic/env.py is the bridge that lets migrations read the same Settings as the runtime.",
+      "nodeIds": [
+        "file:src/categorizer/storage.py",
+        "file:alembic/env.py",
+        "file:alembic/versions/0001_initial.py",
+        "file:alembic/versions/0002_seed_own_accounts_and_merchants.py",
+        "config:alembic.ini"
+      ],
+      "languageLesson": "SQLAlchemy 2.x's async API (AsyncSession, async_sessionmaker) pairs naturally with FastAPI's async endpoints. Alembic migrations are ordered by revision id with explicit down_revision links — running them in order is idempotent and reversible, which is why each data migration uses ON CONFLICT DO NOTHING for safe re-runs."
+    },
+    {
+      "order": 11,
+      "title": "Offline Eval: Gold Set, Metrics, Baselines",
+      "description": "The eval harness is deliberately separate from the runtime path: eval.py replays config/gold_set_v1.jsonl (56 hand-labeled Colombian transactions) against a running categorizer over HTTP, computes flat / macro / hierarchical F1, per-parent F1, adaptive ECE per tier, and tier hits / share, then writes both JSON metrics and a Prometheus textfile. compare.py is the verdict engine — McNemar's exact test plus paired bootstrap CIs on macro-F1 deltas decide promote / reject / inconclusive against eval/baselines/v0.json. render.py turns the raw metrics into reliability diagrams and per-parent F1 heatmaps so regressions are visible at a glance.",
+      "nodeIds": [
+        "file:eval/eval.py",
+        "file:eval/compare.py",
+        "table:config/gold_set_v1.jsonl",
+        "config:eval/baselines/v0.json"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Containerization & CI/CD",
+      "description": "The Dockerfile is a multi-stage build: a builder stage pip-installs the package into /install, then a slim python:3.12 runtime copies that prefix in, drops to an unprivileged app user, exposes 8000, and runs uvicorn against the main:app from Step 2. The Jenkinsfile is the declarative pipeline that ties everything together — it lints, builds the image, pushes it to the self-hosted Zot registry (zot.web.vespiridion.org), runs Alembic migrations from Step 10 on the VPS, redeploys the categorizer, and optionally runs the gold-set eval from Step 11 as a regression gate.",
+      "nodeIds": [
+        "service:Dockerfile",
+        "pipeline:infra/jenkins/Jenkinsfile"
+      ],
+      "languageLesson": "Multi-stage Docker builds keep build-time tooling (pip, gcc, headers) out of the final image. Each FROM starts a fresh layer chain; only what you COPY --from forward survives. The result here is a ~150 MB runtime image instead of the ~800 MB builder image."
+    },
+    {
+      "order": 13,
+      "title": "Training Loop: QLoRA Fine-Tune Pipeline",
+      "description": "The capstone is offline, GPU-only, and never runs inside the API container. training/dataset.py queries labeled corrections from the categorizer DB and serializes ChatML user/assistant pairs into train.jsonl / eval.jsonl. training/train.py runs Unsloth + TRL SFTTrainer on Qwen3-4B with 4-bit QLoRA adapters and saves merged 16-bit weights. training/eval_ft.py replays the eval split through the merged model and writes flat-accuracy metrics. training/README.md is the runbook: export corpus on the VPS, scp to a RunPod pod, train, eval, convert to GGUF, deploy, A/B verify against the eval harness from Step 11, and roll back if compare.py rejects. This is how the LLM from Step 9 gets better over time without ever calling out to a third-party API.",
+      "nodeIds": [
+        "document:training/README.md",
+        "file:training/dataset.py",
+        "file:training/train.py",
+        "file:training/eval_ft.py"
+      ],
+      "languageLesson": "QLoRA quantizes the base model to 4-bit (saving ~4x VRAM) and trains small low-rank adapter matrices on top of frozen weights. Unsloth fuses the kernels so a 4B model fine-tunes on a single 24 GB GPU in minutes — which is why this pipeline can run on a rented RunPod pod rather than dedicated hardware."
+    }
+  ]
+}

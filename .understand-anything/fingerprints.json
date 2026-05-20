@@ -1,0 +1,4129 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "925fca4cf77675322aca21707c8355b729fbf8ed",
+  "generatedAt": "2026-05-20T16:31:50.356Z",
+  "files": {
+    "Dockerfile": {
+      "filePath": "Dockerfile",
+      "contentHash": "a26c553c238727130b5040400a016dd8995cdee8c66f76128fe828f3e9fbdea2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 52,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "734b6a6464726f92ef139925ac56ee6aaaacf19aed44bc3499d4e43764cdd9d8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 87,
+      "hasStructuralAnalysis": true
+    },
+    "alembic.ini": {
+      "filePath": "alembic.ini",
+      "contentHash": "c0545adf555df46655a12b3c79b9bf673d4008e54ae5bbed0e0623bbb730e01f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 39,
+      "hasStructuralAnalysis": false
+    },
+    "alembic/env.py": {
+      "filePath": "alembic/env.py",
+      "contentHash": "85ca24f0d6fbf0378387207274d5e275c58a358b9149206a8545b109e5ddaeb9",
+      "functions": [
+        {
+          "name": "_database_url",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "run_migrations_offline",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "do_run_migrations",
+          "params": [
+            "connection"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "run_migrations_online",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "logging.config",
+          "specifiers": [
+            "fileConfig"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "context"
+          ]
+        },
+        {
+          "source": "sqlalchemy.engine",
+          "specifiers": [
+            "Connection"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "async_engine_from_config"
+          ]
+        },
+        {
+          "source": "categorizer.config",
+          "specifiers": [
+            "get_settings"
+          ]
+        },
+        {
+          "source": "categorizer.storage",
+          "specifiers": [
+            "Base"
+          ]
+        }
+      ],
+      "exports": [
+        "_database_url",
+        "run_migrations_offline",
+        "do_run_migrations",
+        "run_migrations_online"
+      ],
+      "totalLines": 59,
+      "hasStructuralAnalysis": true
+    },
+    "alembic/script.py.mako": {
+      "filePath": "alembic/script.py.mako",
+      "contentHash": "b6938938463b075669b553f454fa82c860f3afc540c53a6d4c17a227b012ca0a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 24,
+      "hasStructuralAnalysis": false
+    },
+    "alembic/versions/0001_initial.py": {
+      "filePath": "alembic/versions/0001_initial.py",
+      "contentHash": "9ee4ad3b1075c907b107f05a9f7310435b4028fb6210bd6ab620718d887325b2",
+      "functions": [
+        {
+          "name": "upgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 73
+        },
+        {
+          "name": "downgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "sa"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "op"
+          ]
+        },
+        {
+          "source": "pgvector.sqlalchemy",
+          "specifiers": [
+            "Vector"
+          ]
+        }
+      ],
+      "exports": [
+        "upgrade",
+        "downgrade"
+      ],
+      "totalLines": 107,
+      "hasStructuralAnalysis": true
+    },
+    "alembic/versions/0002_seed_own_accounts_and_merchants.py": {
+      "filePath": "alembic/versions/0002_seed_own_accounts_and_merchants.py",
+      "contentHash": "d67cca8ceeee157c9e12ef48df0d47a49e4f477a033a29f1b0f463c8a30b4763",
+      "functions": [
+        {
+          "name": "upgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "downgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "sa"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "op"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects.postgresql",
+          "specifiers": [
+            "JSON"
+          ]
+        }
+      ],
+      "exports": [
+        "upgrade",
+        "downgrade"
+      ],
+      "totalLines": 137,
+      "hasStructuralAnalysis": true
+    },
+    "alembic/versions/0003_jsonb_aliases.py": {
+      "filePath": "alembic/versions/0003_jsonb_aliases.py",
+      "contentHash": "61f2a566b8bc343e0bb403430cf55f1dd9ae280b90872330cd2110740b4f2402",
+      "functions": [
+        {
+          "name": "upgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "downgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "sa"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "op"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects",
+          "specifiers": [
+            "postgresql"
+          ]
+        }
+      ],
+      "exports": [
+        "upgrade",
+        "downgrade"
+      ],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    "alembic/versions/0004_own_accounts_miplata_id.py": {
+      "filePath": "alembic/versions/0004_own_accounts_miplata_id.py",
+      "contentHash": "4ed738a05029be306934fda5a9fe8b0946d31639f3f81feef70978c80478a656",
+      "functions": [
+        {
+          "name": "upgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "downgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "sa"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "op"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects",
+          "specifiers": [
+            "postgresql"
+          ]
+        }
+      ],
+      "exports": [
+        "upgrade",
+        "downgrade"
+      ],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "alembic/versions/0005_seed_carcass_merchants.py": {
+      "filePath": "alembic/versions/0005_seed_carcass_merchants.py",
+      "contentHash": "afd4d4aedb070983892cb207d2bd7e34ce75488a65facc8984246907f18eacbe",
+      "functions": [
+        {
+          "name": "upgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "downgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "sa"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "op"
+          ]
+        }
+      ],
+      "exports": [
+        "upgrade",
+        "downgrade"
+      ],
+      "totalLines": 75,
+      "hasStructuralAnalysis": true
+    },
+    "config/gold_set_v1.jsonl": {
+      "filePath": "config/gold_set_v1.jsonl",
+      "contentHash": "39be92abc6ada5ac914d5a4f4b328006286ce0e8940530e6aed3433677bf9562",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 57,
+      "hasStructuralAnalysis": false
+    },
+    "config/taxonomy.yaml": {
+      "filePath": "config/taxonomy.yaml",
+      "contentHash": "86dcab1cedebadf9e8ba0b238ba69d9855855e415bfa4697e08d6c2802e31f2b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 557,
+      "hasStructuralAnalysis": true
+    },
+    "docs/context.md": {
+      "filePath": "docs/context.md",
+      "contentHash": "7f6e595c08cb13c2c012f11f614ed59f93a75a16ae2495ef25b23a3e36fdec5e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 350,
+      "hasStructuralAnalysis": true
+    },
+    "docs/plan.md": {
+      "filePath": "docs/plan.md",
+      "contentHash": "ca672c6756e94f0f6b5185654975ae8aee6fb53017e2c274809c96dc9d850f43",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 397,
+      "hasStructuralAnalysis": true
+    },
+    "eval/__init__.py": {
+      "filePath": "eval/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "eval/baselines/v0.json": {
+      "filePath": "eval/baselines/v0.json",
+      "contentHash": "4632c0066dcb1ada1a67d76e6c4ee16be684dd0c807243be8e66a94f9ecfc3b1",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 541,
+      "hasStructuralAnalysis": true
+    },
+    "eval/compare.py": {
+      "filePath": "eval/compare.py",
+      "contentHash": "9d35cc1fca1c87a2e3e92c7d03f2756162e6c72b0fb6cda9a74e0e78a07fd5bc",
+      "functions": [
+        {
+          "name": "load_metrics",
+          "params": [
+            "path"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "mcnemar_p",
+          "params": [
+            "baseline",
+            "candidate"
+          ],
+          "returnType": "float",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "_f1_score",
+          "params": [
+            "pairs"
+          ],
+          "returnType": "float",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "paired_bootstrap_ci",
+          "params": [
+            "baseline_pairs",
+            "candidate_pairs",
+            "b",
+            "alpha",
+            "seed"
+          ],
+          "returnType": "tuple[float, float]",
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "_pairs",
+          "params": [
+            "metrics"
+          ],
+          "returnType": "list[tuple[str, str]]",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "decide",
+          "params": [
+            "baseline",
+            "candidate"
+          ],
+          "returnType": "Verdict",
+          "exported": true,
+          "lineCount": 65
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [
+        {
+          "name": "Verdict",
+          "methods": [],
+          "properties": [
+            "outcome",
+            "reason",
+            "macro_f1_baseline",
+            "macro_f1_candidate",
+            "macro_f1_delta",
+            "mcnemar_p",
+            "bootstrap_ci_low",
+            "bootstrap_ci_high",
+            "worst_parent_regression"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "asdict",
+            "dataclass"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        }
+      ],
+      "exports": [
+        "Verdict",
+        "load_metrics",
+        "mcnemar_p",
+        "_f1_score",
+        "paired_bootstrap_ci",
+        "_pairs",
+        "decide",
+        "main"
+      ],
+      "totalLines": 227,
+      "hasStructuralAnalysis": true
+    },
+    "eval/eval.py": {
+      "filePath": "eval/eval.py",
+      "contentHash": "9e5dbc643a9731b76f6d4c236e5b8720d68d1d5b458413319fb6109a12f6d15d",
+      "functions": [
+        {
+          "name": "load_gold",
+          "params": [
+            "path"
+          ],
+          "returnType": "list[GoldRow]",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_categorize_one",
+          "params": [
+            "client",
+            "base_url",
+            "token",
+            "row",
+            "sem"
+          ],
+          "returnType": "Prediction",
+          "exported": true,
+          "lineCount": 51
+        },
+        {
+          "name": "_parent_of",
+          "params": [
+            "slug"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "_prf1",
+          "params": [
+            "tp",
+            "fp",
+            "fn"
+          ],
+          "returnType": "tuple[float, float, float]",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "flat_accuracy",
+          "params": [
+            "preds"
+          ],
+          "returnType": "float",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "macro_f1",
+          "params": [
+            "preds"
+          ],
+          "returnType": "float",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "per_parent_f1",
+          "params": [
+            "preds"
+          ],
+          "returnType": "dict[str, float]",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "hierarchical_f1",
+          "params": [
+            "preds"
+          ],
+          "returnType": "float | None",
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "adaptive_ece_per_tier",
+          "params": [
+            "preds",
+            "min_samples",
+            "n_bins"
+          ],
+          "returnType": "dict[str, float | None]",
+          "exported": true,
+          "lineCount": 45
+        },
+        {
+          "name": "tier_hits",
+          "params": [
+            "preds"
+          ],
+          "returnType": "tuple[dict[str, int], dict[str, float]]",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "to_prom_textfile",
+          "params": [
+            "result"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "run_eval",
+          "params": [
+            "base_url",
+            "token",
+            "gold_path",
+            "concurrency"
+          ],
+          "returnType": "tuple[EvalResult, list[Prediction]]",
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 43
+        }
+      ],
+      "classes": [
+        {
+          "name": "GoldRow",
+          "methods": [],
+          "properties": [
+            "external_id",
+            "account_slug",
+            "date",
+            "amount",
+            "currency",
+            "description",
+            "transaction_type",
+            "expected_category_slug"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "Prediction",
+          "methods": [],
+          "properties": [
+            "external_id",
+            "expected",
+            "predicted",
+            "confidence",
+            "source_tier",
+            "latency_ms",
+            "ok",
+            "error"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "EvalResult",
+          "methods": [],
+          "properties": [
+            "gold_path",
+            "base_url",
+            "total",
+            "errors",
+            "flat_accuracy",
+            "macro_f1",
+            "per_parent_f1",
+            "hierarchical_f1",
+            "ece_per_tier",
+            "tier_hits",
+            "tier_share",
+            "predictions"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "statistics",
+          "specifiers": [
+            "statistics"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "collections",
+          "specifiers": [
+            "Counter",
+            "defaultdict"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "asdict",
+            "dataclass",
+            "field"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        },
+        {
+          "source": "httpx",
+          "specifiers": [
+            "httpx"
+          ]
+        }
+      ],
+      "exports": [
+        "GoldRow",
+        "Prediction",
+        "EvalResult",
+        "load_gold",
+        "_categorize_one",
+        "_parent_of",
+        "_prf1",
+        "flat_accuracy",
+        "macro_f1",
+        "per_parent_f1",
+        "hierarchical_f1",
+        "adaptive_ece_per_tier",
+        "tier_hits",
+        "to_prom_textfile",
+        "run_eval",
+        "main"
+      ],
+      "totalLines": 390,
+      "hasStructuralAnalysis": true
+    },
+    "eval/render.py": {
+      "filePath": "eval/render.py",
+      "contentHash": "ac6536157993414133520a1c956d9408a58b2959693d83040fd4df141ac4176d",
+      "functions": [
+        {
+          "name": "_parent_f1_heatmap",
+          "params": [
+            "per_parent_f1",
+            "out"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "_tier_share_bars",
+          "params": [
+            "tier_share",
+            "out"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "_adaptive_bins",
+          "params": [
+            "confs",
+            "correct",
+            "n_bins"
+          ],
+          "returnType": "list[tuple[float, float, int]]",
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "_reliability_diagram",
+          "params": [
+            "tier",
+            "confs",
+            "correct",
+            "out"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "run",
+          "params": [
+            "metrics",
+            "out_dir"
+          ],
+          "returnType": "list[Path]",
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "statistics",
+          "specifiers": [
+            "statistics"
+          ]
+        },
+        {
+          "source": "collections",
+          "specifiers": [
+            "defaultdict"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        }
+      ],
+      "exports": [
+        "_parent_f1_heatmap",
+        "_tier_share_bars",
+        "_adaptive_bins",
+        "_reliability_diagram",
+        "run",
+        "main"
+      ],
+      "totalLines": 175,
+      "hasStructuralAnalysis": true
+    },
+    "infra/jenkins/Jenkinsfile": {
+      "filePath": "infra/jenkins/Jenkinsfile",
+      "contentHash": "d922781f73e38a1bf0aff36dc358622939ddfc8a2a4f02de1b3aca32c2f217a9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 180,
+      "hasStructuralAnalysis": true
+    },
+    "pyproject.toml": {
+      "filePath": "pyproject.toml",
+      "contentHash": "a405aa71aaf7ba57b72f96d20f7de5b18c11ce3d37227f2236d63779f337cb3b",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 82,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/export_ft_corpus.py": {
+      "filePath": "scripts/export_ft_corpus.py",
+      "contentHash": "252b58b6e5a11db2bf6c29ef852f065a8fd8daebc774162f133cbbe9f7c0fe44",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "training.dataset",
+          "specifiers": [
+            "MIN_CORPUS_WARN",
+            "export"
+          ]
+        }
+      ],
+      "exports": [
+        "main"
+      ],
+      "totalLines": 42,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/sample_for_gold_v2.py": {
+      "filePath": "scripts/sample_for_gold_v2.py",
+      "contentHash": "02bd2d5f750acf98c9b87c539830cdfd2888c93d29ac3a4182d5af1005c043bd",
+      "functions": [
+        {
+          "name": "_load_v1_slugs",
+          "params": [
+            "path"
+          ],
+          "returnType": "set[str]",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "_fetch_correction_rows",
+          "params": [
+            "dsn",
+            "since"
+          ],
+          "returnType": "list[dict[str, Any]]",
+          "exported": true,
+          "lineCount": 45
+        },
+        {
+          "name": "_diversity_sample",
+          "params": [
+            "rows",
+            "v1_slugs",
+            "target",
+            "seed"
+          ],
+          "returnType": "list[dict[str, Any]]",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "_format_gold_row",
+          "params": [
+            "row"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "run",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 39
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "collections",
+          "specifiers": [
+            "Counter"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "UTC",
+            "datetime",
+            "timedelta"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "text"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "create_async_engine"
+          ]
+        }
+      ],
+      "exports": [
+        "_load_v1_slugs",
+        "_fetch_correction_rows",
+        "_diversity_sample",
+        "_format_gold_row",
+        "run"
+      ],
+      "totalLines": 202,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/seed_gold_set.py": {
+      "filePath": "scripts/seed_gold_set.py",
+      "contentHash": "fe963c660690abacce1053f79641a2abfe5f61f02844b92e5fe4aaa46190e645",
+      "functions": [
+        {
+          "name": "main",
+          "params": [
+            "path"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "httpx",
+          "specifiers": [
+            "httpx"
+          ]
+        }
+      ],
+      "exports": [
+        "main"
+      ],
+      "totalLines": 80,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/sync_miplata_accounts.py": {
+      "filePath": "scripts/sync_miplata_accounts.py",
+      "contentHash": "474d7bc31c41ad8332d78a872f743350e418acf40b2586e01c26ace757d922de",
+      "functions": [
+        {
+          "name": "_institution_from_bank_name",
+          "params": [
+            "bank_name"
+          ],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_extract_tail",
+          "params": [
+            "account_number",
+            "alias"
+          ],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "_fetch_miplata_accounts",
+          "params": [
+            "url"
+          ],
+          "returnType": "list[dict]",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "_fetch_own_accounts",
+          "params": [
+            "url"
+          ],
+          "returnType": "list[dict]",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "_update_mapping",
+          "params": [
+            "url",
+            "slug",
+            "miplata_id"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_match",
+          "params": [
+            "mip",
+            "by_institution"
+          ],
+          "returnType": "tuple[dict | None, str]",
+          "exported": true,
+          "lineCount": 28
+        },
+        {
+          "name": "main",
+          "params": [],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 46
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "collections",
+          "specifiers": [
+            "defaultdict"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "text"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "create_async_engine"
+          ]
+        }
+      ],
+      "exports": [
+        "_institution_from_bank_name",
+        "_extract_tail",
+        "_fetch_miplata_accounts",
+        "_fetch_own_accounts",
+        "_update_mapping",
+        "_match",
+        "main"
+      ],
+      "totalLines": 194,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/__init__.py": {
+      "filePath": "src/categorizer/__init__.py",
+      "contentHash": "91447944015cec709e8aa7655f7e9d64e1e4508e7023a57fe3746911c0fc6fed",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/api.py": {
+      "filePath": "src/categorizer/api.py",
+      "contentHash": "b0ef8be9bb8cd9f0662e577a913425f599b8ec8ee46a99812c4e30afed9049a8",
+      "functions": [
+        {
+          "name": "_get_session",
+          "params": [],
+          "returnType": "AsyncSession",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "_get_taxonomy",
+          "params": [
+            "request"
+          ],
+          "returnType": "Taxonomy",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "healthz",
+          "params": [],
+          "returnType": "dict[str, str]",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "metrics_endpoint",
+          "params": [],
+          "returnType": "Response",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "categorize_endpoint",
+          "params": [
+            "payload",
+            "request",
+            "session"
+          ],
+          "returnType": "CategorizeResponse",
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "label_endpoint",
+          "params": [
+            "payload",
+            "session"
+          ],
+          "returnType": "dict[str, object]",
+          "exported": true,
+          "lineCount": 47
+        },
+        {
+          "name": "list_uncertain",
+          "params": [
+            "limit",
+            "session"
+          ],
+          "returnType": "dict[str, list[dict[str, object]]]",
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "get_taxonomy",
+          "params": [
+            "request"
+          ],
+          "returnType": "dict[str, object]",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "list_own_accounts",
+          "params": [
+            "session"
+          ],
+          "returnType": "dict[str, list[dict]]",
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "Depends",
+            "HTTPException",
+            "Request",
+            "Response"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "AsyncSession"
+          ]
+        },
+        {
+          "source": ".cascade",
+          "specifiers": [
+            "_resolve_account_slug"
+          ]
+        },
+        {
+          "source": ".cascade",
+          "specifiers": [
+            "run_cascade"
+          ]
+        },
+        {
+          "source": ".metrics",
+          "specifiers": [
+            "categorize_latency_seconds",
+            "corrections_total",
+            "predictions_total"
+          ]
+        },
+        {
+          "source": ".metrics",
+          "specifiers": [
+            "render_metrics"
+          ]
+        },
+        {
+          "source": ".retrieval",
+          "specifiers": [
+            "embed_for_storage"
+          ]
+        },
+        {
+          "source": ".schemas",
+          "specifiers": [
+            "CategorizeRequest",
+            "CategorizeResponse",
+            "LabelIn"
+          ]
+        },
+        {
+          "source": ".storage",
+          "specifiers": [
+            "Correction",
+            "LabeledTransaction",
+            "OwnAccount",
+            "Prediction",
+            "get_session_factory"
+          ]
+        },
+        {
+          "source": ".taxonomy",
+          "specifiers": [
+            "Taxonomy"
+          ]
+        }
+      ],
+      "exports": [
+        "_get_session",
+        "_get_taxonomy",
+        "healthz",
+        "metrics_endpoint",
+        "categorize_endpoint",
+        "label_endpoint",
+        "list_uncertain",
+        "get_taxonomy",
+        "list_own_accounts"
+      ],
+      "totalLines": 227,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/cascade.py": {
+      "filePath": "src/categorizer/cascade.py",
+      "contentHash": "52b9eafe6f5e3ba8372993a5494c26aacf03d72a128816b98a0b26f12e6ac7fe",
+      "functions": [
+        {
+          "name": "_resolve_account_slug",
+          "params": [
+            "session",
+            "account_slug"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "_load_own_accounts",
+          "params": [
+            "session"
+          ],
+          "returnType": "list[OwnAccountRef]",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "_paired_internal_transfer",
+          "params": [
+            "session",
+            "tx"
+          ],
+          "returnType": "tuple[str, float, str] | None",
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "_build_llm_messages",
+          "params": [
+            "tx",
+            "normalized",
+            "retrieved",
+            "merchant_hint",
+            "taxonomy",
+            "own_accounts"
+          ],
+          "returnType": "list[dict[str, object]]",
+          "exported": true,
+          "lineCount": 59
+        },
+        {
+          "name": "_own_account_text_match",
+          "params": [
+            "normalized",
+            "raw",
+            "own_accounts"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "categorize",
+          "params": [
+            "session",
+            "tx",
+            "taxonomy"
+          ],
+          "returnType": "CategorizationResult",
+          "exported": true,
+          "lineCount": 249
+        },
+        {
+          "name": "total_latency_ms",
+          "params": [
+            "started_at"
+          ],
+          "returnType": "float",
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "timedelta"
+          ]
+        },
+        {
+          "source": "structlog",
+          "specifiers": [
+            "structlog"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "and_",
+            "select"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "AsyncSession"
+          ]
+        },
+        {
+          "source": ".",
+          "specifiers": [
+            "rules"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "get_settings"
+          ]
+        },
+        {
+          "source": ".llm",
+          "specifiers": [
+            "llm_classify"
+          ]
+        },
+        {
+          "source": ".merchant",
+          "specifiers": [
+            "merchant_lookup"
+          ]
+        },
+        {
+          "source": ".normalize",
+          "specifiers": [
+            "normalize"
+          ]
+        },
+        {
+          "source": ".retrieval",
+          "specifiers": [
+            "knn",
+            "vote"
+          ]
+        },
+        {
+          "source": ".schemas",
+          "specifiers": [
+            "CategorizationResult",
+            "OwnAccountRef",
+            "RetrievedExample",
+            "TransactionIn"
+          ]
+        },
+        {
+          "source": ".storage",
+          "specifiers": [
+            "LabeledTransaction",
+            "OwnAccount"
+          ]
+        },
+        {
+          "source": ".taxonomy",
+          "specifiers": [
+            "Taxonomy"
+          ]
+        },
+        {
+          "source": ".tools",
+          "specifiers": [
+            "TOOL_SCHEMAS"
+          ]
+        },
+        {
+          "source": ".tools",
+          "specifiers": [
+            "tool_dispatch"
+          ]
+        }
+      ],
+      "exports": [
+        "_resolve_account_slug",
+        "_load_own_accounts",
+        "_paired_internal_transfer",
+        "_build_llm_messages",
+        "_own_account_text_match",
+        "categorize",
+        "total_latency_ms"
+      ],
+      "totalLines": 459,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/config.py": {
+      "filePath": "src/categorizer/config.py",
+      "contentHash": "bf87417d9201014bf6c0a8b15541205db0a2857299738fdb20bfeda7679939e3",
+      "functions": [
+        {
+          "name": "get_settings",
+          "params": [],
+          "returnType": "Settings",
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "Settings",
+          "methods": [],
+          "properties": [
+            "env",
+            "port",
+            "threads",
+            "log_level",
+            "database_url",
+            "miplata_ro_database_url",
+            "llm_base_url",
+            "llm_model",
+            "llm_request_timeout",
+            "api_token",
+            "rule_min_confidence",
+            "knn_min_confidence",
+            "knn_min_margin",
+            "llm_min_confidence",
+            "think_trigger_confidence",
+            "taxonomy_path",
+            "artifacts_dir",
+            "embedding_model",
+            "embedding_dim"
+          ],
+          "exported": true,
+          "lineCount": 40
+        }
+      ],
+      "imports": [
+        {
+          "source": "functools",
+          "specifiers": [
+            "lru_cache"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "pydantic",
+          "specifiers": [
+            "Field",
+            "PostgresDsn"
+          ]
+        },
+        {
+          "source": "pydantic_settings",
+          "specifiers": [
+            "BaseSettings",
+            "SettingsConfigDict"
+          ]
+        }
+      ],
+      "exports": [
+        "Settings",
+        "get_settings"
+      ],
+      "totalLines": 53,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/features.py": {
+      "filePath": "src/categorizer/features.py",
+      "contentHash": "875749f558cd252bc7d5d8b9d04beacc521496c07c49112b6eccefd625182640",
+      "functions": [
+        {
+          "name": "amount_bucket",
+          "params": [
+            "amount"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "temporal_features",
+          "params": [
+            "tx_date"
+          ],
+          "returnType": "dict[str, int | str]",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "detect_recurring",
+          "params": [
+            "tx",
+            "history",
+            "amount_tolerance_pct",
+            "day_tolerance"
+          ],
+          "returnType": "dict[str, int | float | None]",
+          "exported": true,
+          "lineCount": 50
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "date"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "statistics",
+          "specifiers": [
+            "median"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "TYPE_CHECKING"
+          ]
+        }
+      ],
+      "exports": [
+        "amount_bucket",
+        "temporal_features",
+        "detect_recurring"
+      ],
+      "totalLines": 98,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/llm.py": {
+      "filePath": "src/categorizer/llm.py",
+      "contentHash": "ec2870a1f46d2144db59a8709ee7c7e8f7b89b26d21bc679f784e53387268a46",
+      "functions": [
+        {
+          "name": "get_client",
+          "params": [],
+          "returnType": "AsyncOpenAI",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "build_category_schema",
+          "params": [
+            "allowed_slugs"
+          ],
+          "returnType": "dict[str, Any]",
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "classify",
+          "params": [
+            "messages",
+            "allowed_slugs",
+            "tools",
+            "thinking"
+          ],
+          "returnType": "LLMResponse",
+          "exported": true,
+          "lineCount": 71
+        }
+      ],
+      "classes": [
+        {
+          "name": "LLMResponse",
+          "methods": [],
+          "properties": [
+            "content",
+            "parsed",
+            "tool_calls",
+            "finish_reason",
+            "elapsed_ms",
+            "model"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "imports": [
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        },
+        {
+          "source": "openai",
+          "specifiers": [
+            "AsyncOpenAI"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "get_settings"
+          ]
+        }
+      ],
+      "exports": [
+        "LLMResponse",
+        "get_client",
+        "build_category_schema",
+        "classify"
+      ],
+      "totalLines": 155,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/logging_setup.py": {
+      "filePath": "src/categorizer/logging_setup.py",
+      "contentHash": "ca818c99c78538757dcf807a222eb7575cf1aaf4dbe5c2781747020ea9c1401c",
+      "functions": [
+        {
+          "name": "configure_logging",
+          "params": [
+            "level"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "logging",
+          "specifiers": [
+            "logging"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "structlog",
+          "specifiers": [
+            "structlog"
+          ]
+        }
+      ],
+      "exports": [
+        "configure_logging"
+      ],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/main.py": {
+      "filePath": "src/categorizer/main.py",
+      "contentHash": "97b131a0594966e46b4366f1d1899ce23eab56045ac9ddb057e3ba2013fec204",
+      "functions": [
+        {
+          "name": "lifespan",
+          "params": [
+            "app"
+          ],
+          "returnType": "AsyncIterator[None]",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "create_app",
+          "params": [],
+          "returnType": "FastAPI",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "contextlib",
+          "specifiers": [
+            "asynccontextmanager"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "TYPE_CHECKING"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "FastAPI"
+          ]
+        },
+        {
+          "source": ".api",
+          "specifiers": [
+            "router"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "get_settings"
+          ]
+        },
+        {
+          "source": ".logging_setup",
+          "specifiers": [
+            "configure_logging"
+          ]
+        },
+        {
+          "source": ".taxonomy",
+          "specifiers": [
+            "load_taxonomy"
+          ]
+        }
+      ],
+      "exports": [
+        "lifespan",
+        "create_app"
+      ],
+      "totalLines": 42,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/merchant.py": {
+      "filePath": "src/categorizer/merchant.py",
+      "contentHash": "abb6a21a7fc8d550dc8cc4084859ec2c83a8b25e80c33515bcb602c917215b97",
+      "functions": [
+        {
+          "name": "seed_merchants",
+          "params": [
+            "session"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "lookup",
+          "params": [
+            "session",
+            "normalized_text"
+          ],
+          "returnType": "MerchantMatch | None",
+          "exported": true,
+          "lineCount": 43
+        }
+      ],
+      "classes": [
+        {
+          "name": "MerchantMatch",
+          "methods": [],
+          "properties": [
+            "canonical_name",
+            "mcc_hint",
+            "default_category_slug",
+            "match_confidence",
+            "source"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "imports": [
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "select"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "AsyncSession"
+          ]
+        },
+        {
+          "source": ".storage",
+          "specifiers": [
+            "Merchant"
+          ]
+        }
+      ],
+      "exports": [
+        "MerchantMatch",
+        "seed_merchants",
+        "lookup"
+      ],
+      "totalLines": 157,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/metrics.py": {
+      "filePath": "src/categorizer/metrics.py",
+      "contentHash": "b34063b54c74297ea76397f49fe75021143bd482b60b34370913e0b0c4fa6967",
+      "functions": [
+        {
+          "name": "render",
+          "params": [],
+          "returnType": "tuple[bytes, str]",
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "prometheus_client",
+          "specifiers": [
+            "CONTENT_TYPE_LATEST",
+            "Counter",
+            "Histogram",
+            "generate_latest"
+          ]
+        }
+      ],
+      "exports": [
+        "render"
+      ],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/normalize.py": {
+      "filePath": "src/categorizer/normalize.py",
+      "contentHash": "00384b13da9a07dfd4481f9ea7f459357805d275b6afc290854b266c6f0011bd",
+      "functions": [
+        {
+          "name": "_strip_accents",
+          "params": [
+            "text"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "normalize",
+          "params": [
+            "description"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "unicodedata",
+          "specifiers": [
+            "unicodedata"
+          ]
+        }
+      ],
+      "exports": [
+        "_strip_accents",
+        "normalize"
+      ],
+      "totalLines": 120,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/retrieval.py": {
+      "filePath": "src/categorizer/retrieval.py",
+      "contentHash": "0b4803f8f0cb19b6c30aa2010f999f11b16c059635c0000bac3a16e335b0e0c6",
+      "functions": [
+        {
+          "name": "embed_for_storage",
+          "params": [
+            "texts"
+          ],
+          "returnType": "list[list[float]]",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "knn",
+          "params": [
+            "session",
+            "normalized_query",
+            "k",
+            "account_slug"
+          ],
+          "returnType": "list[RetrievedNeighbor]",
+          "exported": true,
+          "lineCount": 52
+        },
+        {
+          "name": "vote",
+          "params": [
+            "neighbors"
+          ],
+          "returnType": "tuple[str, float, float] | None",
+          "exported": true,
+          "lineCount": 22
+        }
+      ],
+      "classes": [
+        {
+          "name": "RetrievedNeighbor",
+          "methods": [],
+          "properties": [
+            "external_id",
+            "normalized_description",
+            "category_slug",
+            "similarity"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "EmbeddingModel",
+          "methods": [
+            "__init__",
+            "instance",
+            "embed"
+          ],
+          "properties": [
+            "_instance"
+          ],
+          "exported": true,
+          "lineCount": 41
+        }
+      ],
+      "imports": [
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "threading",
+          "specifiers": [
+            "Lock"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "perf_counter"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "TYPE_CHECKING"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "func",
+            "text"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "AsyncSession"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "get_settings"
+          ]
+        },
+        {
+          "source": ".metrics",
+          "specifiers": [
+            "embedding_time_seconds"
+          ]
+        }
+      ],
+      "exports": [
+        "RetrievedNeighbor",
+        "EmbeddingModel",
+        "embed_for_storage",
+        "knn",
+        "vote"
+      ],
+      "totalLines": 168,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/rules.py": {
+      "filePath": "src/categorizer/rules.py",
+      "contentHash": "9d66c6127b4fdd821762d22fdc59d45354ed52c9d30157a34c33c0984d30455a",
+      "functions": [
+        {
+          "name": "resolve_internal_transfer_by_text",
+          "params": [
+            "normalized",
+            "own_accounts"
+          ],
+          "returnType": "RuleHit | None",
+          "exported": true,
+          "lineCount": 38
+        },
+        {
+          "name": "match",
+          "params": [
+            "_tx",
+            "normalized",
+            "own_accounts"
+          ],
+          "returnType": "RuleHit | None",
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "classes": [
+        {
+          "name": "RuleHit",
+          "methods": [],
+          "properties": [
+            "category_slug",
+            "confidence",
+            "reasoning"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "imports": [
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": ".schemas",
+          "specifiers": [
+            "OwnAccountRef",
+            "TransactionIn"
+          ]
+        }
+      ],
+      "exports": [
+        "RuleHit",
+        "resolve_internal_transfer_by_text",
+        "match"
+      ],
+      "totalLines": 208,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/schemas.py": {
+      "filePath": "src/categorizer/schemas.py",
+      "contentHash": "7ac56e6d644b8e1e0af0be86616c7dcc35733da92bd67266ff335334ee651ba9",
+      "functions": [],
+      "classes": [
+        {
+          "name": "OwnAccountRef",
+          "methods": [],
+          "properties": [
+            "slug",
+            "display_name",
+            "institution",
+            "account_number_tail",
+            "aliases"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "TransactionIn",
+          "methods": [],
+          "properties": [
+            "external_id",
+            "account_slug",
+            "tx_date",
+            "amount",
+            "currency",
+            "description",
+            "original_description",
+            "transaction_type",
+            "balance_after",
+            "metadata"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "RetrievedExample",
+          "methods": [],
+          "properties": [
+            "external_id",
+            "normalized_description",
+            "category_slug",
+            "similarity",
+            "amount",
+            "tx_date"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "CategorizationResult",
+          "methods": [],
+          "properties": [
+            "category_slug",
+            "confidence",
+            "source",
+            "reasoning",
+            "retrieved_examples",
+            "features",
+            "tier_trace"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "CategorizeRequest",
+          "methods": [],
+          "properties": [
+            "transaction",
+            "allow_reject",
+            "return_trace"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "CategorizeResponse",
+          "methods": [],
+          "properties": [
+            "result",
+            "latency_ms"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "LabelIn",
+          "methods": [],
+          "properties": [
+            "transaction",
+            "category_slug",
+            "confirmed_at",
+            "correction_of"
+          ],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "date",
+            "datetime"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Literal"
+          ]
+        },
+        {
+          "source": "pydantic",
+          "specifiers": [
+            "BaseModel",
+            "ConfigDict",
+            "Field"
+          ]
+        }
+      ],
+      "exports": [
+        "OwnAccountRef",
+        "TransactionIn",
+        "RetrievedExample",
+        "CategorizationResult",
+        "CategorizeRequest",
+        "CategorizeResponse",
+        "LabelIn"
+      ],
+      "totalLines": 91,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/storage.py": {
+      "filePath": "src/categorizer/storage.py",
+      "contentHash": "6fcd6f1d1cec40c9962c46890fff0b268768fb719f235ad8cd0af961aabd2406",
+      "functions": [
+        {
+          "name": "_utc_now",
+          "params": [],
+          "returnType": "datetime",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "get_engine",
+          "params": [],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "get_session_factory",
+          "params": [],
+          "returnType": "async_sessionmaker[AsyncSession]",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [
+        {
+          "name": "Base",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "OwnAccount",
+          "methods": [],
+          "properties": [
+            "slug",
+            "display_name",
+            "institution",
+            "account_number_tail",
+            "aliases",
+            "miplata_account_id",
+            "created_at"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "LabeledTransaction",
+          "methods": [],
+          "properties": [
+            "id",
+            "external_id",
+            "account_slug",
+            "tx_date",
+            "amount",
+            "currency",
+            "transaction_type",
+            "description",
+            "normalized_description",
+            "category_slug",
+            "source",
+            "embedding",
+            "created_at"
+          ],
+          "exported": true,
+          "lineCount": 36
+        },
+        {
+          "name": "Prediction",
+          "methods": [],
+          "properties": [
+            "id",
+            "external_id",
+            "account_slug",
+            "normalized_description",
+            "predicted_slug",
+            "confidence",
+            "source_tier",
+            "latency_ms",
+            "trace",
+            "created_at"
+          ],
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "Correction",
+          "methods": [],
+          "properties": [
+            "id",
+            "external_id",
+            "old_slug",
+            "new_slug",
+            "created_at"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "Merchant",
+          "methods": [],
+          "properties": [
+            "id",
+            "canonical_name",
+            "aliases",
+            "mcc_hint",
+            "default_category_slug",
+            "source",
+            "created_at"
+          ],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "UTC",
+            "date",
+            "datetime"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "UUID"
+          ]
+        },
+        {
+          "source": "pgvector.sqlalchemy",
+          "specifiers": [
+            "Vector"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "JSON",
+            "Date",
+            "DateTime",
+            "ForeignKey",
+            "Index",
+            "Integer",
+            "Numeric",
+            "String",
+            "Text"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects.postgresql",
+          "specifiers": [
+            "JSONB"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects.postgresql",
+          "specifiers": [
+            "PG_UUID"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "AsyncSession",
+            "async_sessionmaker",
+            "create_async_engine"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "DeclarativeBase",
+            "Mapped",
+            "mapped_column"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "get_settings"
+          ]
+        }
+      ],
+      "exports": [
+        "Base",
+        "_utc_now",
+        "OwnAccount",
+        "LabeledTransaction",
+        "Prediction",
+        "Correction",
+        "Merchant",
+        "get_engine",
+        "get_session_factory"
+      ],
+      "totalLines": 175,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/taxonomy.py": {
+      "filePath": "src/categorizer/taxonomy.py",
+      "contentHash": "22b2d2b6fd3a1accbc5a62d4f996c7010bf540d61974f60708dc78770e5233b6",
+      "functions": [
+        {
+          "name": "load_taxonomy",
+          "params": [
+            "path"
+          ],
+          "returnType": "Taxonomy",
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "classes": [
+        {
+          "name": "Category",
+          "methods": [],
+          "properties": [
+            "slug",
+            "name",
+            "parent_slug",
+            "implemented",
+            "examples"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "Taxonomy",
+          "methods": [
+            "__init__",
+            "all_slugs",
+            "implemented_slugs",
+            "emittable_slugs",
+            "get",
+            "roots",
+            "children_of",
+            "parent_of",
+            "path",
+            "is_valid",
+            "__contains__",
+            "__len__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 81
+        }
+      ],
+      "imports": [
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Iterator"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass",
+            "field"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "yaml",
+          "specifiers": [
+            "yaml"
+          ]
+        }
+      ],
+      "exports": [
+        "Category",
+        "Taxonomy",
+        "load_taxonomy"
+      ],
+      "totalLines": 118,
+      "hasStructuralAnalysis": true
+    },
+    "src/categorizer/tools.py": {
+      "filePath": "src/categorizer/tools.py",
+      "contentHash": "5d3bb99d410f624c71eb669f785725d4db92f79f6e41fa611f59fdb964477b09",
+      "functions": [
+        {
+          "name": "dispatch",
+          "params": [
+            "session",
+            "name",
+            "arguments"
+          ],
+          "returnType": "ToolCallResult",
+          "exported": true,
+          "lineCount": 92
+        }
+      ],
+      "classes": [
+        {
+          "name": "ToolCallResult",
+          "methods": [],
+          "properties": [
+            "name",
+            "ok",
+            "payload"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "imports": [
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "desc",
+            "select"
+          ]
+        },
+        {
+          "source": "sqlalchemy.ext.asyncio",
+          "specifiers": [
+            "AsyncSession"
+          ]
+        },
+        {
+          "source": ".merchant",
+          "specifiers": [
+            "MerchantMatch"
+          ]
+        },
+        {
+          "source": ".merchant",
+          "specifiers": [
+            "merchant_lookup"
+          ]
+        },
+        {
+          "source": ".storage",
+          "specifiers": [
+            "LabeledTransaction"
+          ]
+        }
+      ],
+      "exports": [
+        "ToolCallResult",
+        "dispatch"
+      ],
+      "totalLines": 213,
+      "hasStructuralAnalysis": true
+    },
+    "tests/__init__.py": {
+      "filePath": "tests/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "tests/conftest.py": {
+      "filePath": "tests/conftest.py",
+      "contentHash": "b57efaf0a36c31d23bc1909db94f50857f974f6c1e9d738d4d79849a026ab8a5",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_cascade_paired_tx.py": {
+      "filePath": "tests/test_cascade_paired_tx.py",
+      "contentHash": "b07306018833231274f41fb711b56e8d639878f445d4d37796385bf074a80035",
+      "functions": [
+        {
+          "name": "_tx",
+          "params": [
+            "account_slug",
+            "amount",
+            "ttype",
+            "desc"
+          ],
+          "returnType": "TransactionIn",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "test_resolve_account_slug_passthrough_for_friendly_slug",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_resolve_account_slug_translates_known_uuid",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_resolve_account_slug_unknown_uuid_falls_through",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_paired_internal_transfer_friendly_slug_no_match",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_paired_internal_transfer_uuid_resolves_and_finds_pair",
+          "params": [],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_paired_internal_transfer_uuid_unresolved_no_crash",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [
+        {
+          "name": "_FakeSession",
+          "methods": [
+            "__init__",
+            "_scalar_side_effect"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "date"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "unittest.mock",
+          "specifiers": [
+            "AsyncMock"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "categorizer.cascade",
+          "specifiers": [
+            "_paired_internal_transfer",
+            "_resolve_account_slug"
+          ]
+        },
+        {
+          "source": "categorizer.schemas",
+          "specifiers": [
+            "TransactionIn"
+          ]
+        },
+        {
+          "source": "categorizer.storage",
+          "specifiers": [
+            "LabeledTransaction"
+          ]
+        }
+      ],
+      "exports": [
+        "_tx",
+        "_FakeSession",
+        "test_resolve_account_slug_passthrough_for_friendly_slug",
+        "test_resolve_account_slug_translates_known_uuid",
+        "test_resolve_account_slug_unknown_uuid_falls_through",
+        "test_paired_internal_transfer_friendly_slug_no_match",
+        "test_paired_internal_transfer_uuid_resolves_and_finds_pair",
+        "test_paired_internal_transfer_uuid_unresolved_no_crash"
+      ],
+      "totalLines": 129,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_cascade_reject_gate.py": {
+      "filePath": "tests/test_cascade_reject_gate.py",
+      "contentHash": "b61d4e015d9aff51eba0bb4d080caec80312fa614980f6b6f52e9ec5e6acfdc6",
+      "functions": [
+        {
+          "name": "_tx",
+          "params": [
+            "desc",
+            "amount"
+          ],
+          "returnType": "TransactionIn",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_taxonomy",
+          "params": [],
+          "returnType": "Taxonomy",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_own_accounts_nequi_only",
+          "params": [],
+          "returnType": "list[OwnAccountRef]",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_patch_session_deps",
+          "params": [],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_llm_proposes_internal_transfer_without_own_account_match_is_rejected",
+          "params": [],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_llm_internal_transfer_with_alias_in_description_passes",
+          "params": [],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "test_paired_tx_hit_wins_over_llm",
+          "params": [],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "test_non_internal_transfer_llm_prediction_passes_through",
+          "params": [],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "test_own_account_text_match_matches_alias_in_normalized",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_own_account_text_match_no_alias_in_plain_name",
+          "params": [],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [
+        {
+          "name": "_Resp",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "date"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "unittest.mock",
+          "specifiers": [
+            "AsyncMock",
+            "patch"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "categorizer",
+          "specifiers": [
+            "cascade"
+          ]
+        },
+        {
+          "source": "categorizer.schemas",
+          "specifiers": [
+            "OwnAccountRef",
+            "TransactionIn"
+          ]
+        },
+        {
+          "source": "categorizer.taxonomy",
+          "specifiers": [
+            "Category",
+            "Taxonomy"
+          ]
+        }
+      ],
+      "exports": [
+        "_tx",
+        "_taxonomy",
+        "_own_accounts_nequi_only",
+        "_Resp",
+        "_patch_session_deps",
+        "test_llm_proposes_internal_transfer_without_own_account_match_is_rejected",
+        "test_llm_internal_transfer_with_alias_in_description_passes",
+        "test_paired_tx_hit_wins_over_llm",
+        "test_non_internal_transfer_llm_prediction_passes_through",
+        "test_own_account_text_match_matches_alias_in_normalized",
+        "test_own_account_text_match_no_alias_in_plain_name"
+      ],
+      "totalLines": 181,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_eval_compare.py": {
+      "filePath": "tests/test_eval_compare.py",
+      "contentHash": "8c5862954a69a303803b8586b534c7f92bab9d7f146885d7ff2ffa27a7fdb950",
+      "functions": [
+        {
+          "name": "test_mcnemar_identical_predictions_is_one",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_mcnemar_one_sided_flip_gives_small_p",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_paired_bootstrap_ci_sensible",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "_metrics",
+          "params": [
+            "predictions",
+            "parent_f1",
+            "macro"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_decide_promote_when_candidate_wins_big",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "test_decide_reject_when_candidate_regresses",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_decide_inconclusive_when_tiny",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_main_missing_baseline_exits_zero",
+          "params": [
+            "tmp_path",
+            "capsys"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "eval.compare",
+          "specifiers": [
+            "decide",
+            "main",
+            "mcnemar_p",
+            "paired_bootstrap_ci"
+          ]
+        }
+      ],
+      "exports": [
+        "test_mcnemar_identical_predictions_is_one",
+        "test_mcnemar_one_sided_flip_gives_small_p",
+        "test_paired_bootstrap_ci_sensible",
+        "_metrics",
+        "test_decide_promote_when_candidate_wins_big",
+        "test_decide_reject_when_candidate_regresses",
+        "test_decide_inconclusive_when_tiny",
+        "test_main_missing_baseline_exits_zero"
+      ],
+      "totalLines": 81,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_eval_metrics.py": {
+      "filePath": "tests/test_eval_metrics.py",
+      "contentHash": "f6d918d3922f2e10b2d49342448c52528af2346def6230b06c3ce33b67662201",
+      "functions": [
+        {
+          "name": "_p",
+          "params": [
+            "expected",
+            "predicted",
+            "tier",
+            "conf"
+          ],
+          "returnType": "Prediction",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "test_flat_accuracy_all_correct",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_flat_accuracy_mixed",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_macro_f1_handles_partial_miss",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_per_parent_f1_collapses_leaves",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_hierarchical_f1_partial_credit",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_tier_hits_share_sums_to_one",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "test_adaptive_ece_skips_small_tiers",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_prom_textfile_has_core_metrics",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "eval.eval",
+          "specifiers": [
+            "EvalResult",
+            "Prediction",
+            "adaptive_ece_per_tier",
+            "flat_accuracy",
+            "hierarchical_f1",
+            "macro_f1",
+            "per_parent_f1",
+            "tier_hits",
+            "to_prom_textfile"
+          ]
+        }
+      ],
+      "exports": [
+        "_p",
+        "test_flat_accuracy_all_correct",
+        "test_flat_accuracy_mixed",
+        "test_macro_f1_handles_partial_miss",
+        "test_per_parent_f1_collapses_leaves",
+        "test_hierarchical_f1_partial_credit",
+        "test_tier_hits_share_sums_to_one",
+        "test_adaptive_ece_skips_small_tiers",
+        "test_prom_textfile_has_core_metrics"
+      ],
+      "totalLines": 106,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_llm_prompts.py": {
+      "filePath": "tests/test_llm_prompts.py",
+      "contentHash": "28e7e7d04e50163c56ff5b9011e7fbfe4b9625de64f0e38b3b05876fa6365454",
+      "functions": [
+        {
+          "name": "taxonomy",
+          "params": [],
+          "returnType": "Taxonomy",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "tx",
+          "params": [],
+          "returnType": "TransactionIn",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "_concat",
+          "params": [
+            "messages"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_system_prompt_frames_examples_as_hints",
+          "params": [
+            "taxonomy",
+            "tx"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_user_prompt_marks_examples_as_related_hints",
+          "params": [
+            "taxonomy",
+            "tx"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "date"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "categorizer.cascade",
+          "specifiers": [
+            "_build_llm_messages"
+          ]
+        },
+        {
+          "source": "categorizer.schemas",
+          "specifiers": [
+            "RetrievedExample",
+            "TransactionIn"
+          ]
+        },
+        {
+          "source": "categorizer.taxonomy",
+          "specifiers": [
+            "Taxonomy",
+            "load_taxonomy"
+          ]
+        }
+      ],
+      "exports": [
+        "taxonomy",
+        "tx",
+        "_concat",
+        "test_system_prompt_frames_examples_as_hints",
+        "test_user_prompt_marks_examples_as_related_hints"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_normalize.py": {
+      "filePath": "tests/test_normalize.py",
+      "contentHash": "2621ecd071b247e6f863d465be19297fd05898136301cdb72628e51e8a7c6b65",
+      "functions": [
+        {
+          "name": "test_normalize_contains_expected_tokens",
+          "params": [
+            "raw",
+            "expected_tokens"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_normalize_is_lowercase",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_normalize_preserves_ñ",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "test_normalize_idempotent",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "categorizer.normalize",
+          "specifiers": [
+            "normalize"
+          ]
+        }
+      ],
+      "exports": [
+        "test_normalize_contains_expected_tokens",
+        "test_normalize_is_lowercase",
+        "test_normalize_preserves_ñ",
+        "test_normalize_idempotent"
+      ],
+      "totalLines": 79,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_rules.py": {
+      "filePath": "tests/test_rules.py",
+      "contentHash": "5988cac94d2744442715049cff6631f8424d07824e5d45d79ea060da2af7336c",
+      "functions": [
+        {
+          "name": "_tx",
+          "params": [
+            "desc",
+            "amount",
+            "ttype"
+          ],
+          "returnType": "TransactionIn",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_own_accounts",
+          "params": [],
+          "returnType": "list[OwnAccountRef]",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "test_internal_transfer_matched_by_text",
+          "params": [
+            "description"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_internal_transfer_requires_own_account_match",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "test_internal_transfer_requires_counterparty",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_rule_tier_emits_expected_category",
+          "params": [
+            "description",
+            "expected_slug"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_rule_tier_falls_through",
+          "params": [
+            "description"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "date"
+          ]
+        },
+        {
+          "source": "decimal",
+          "specifiers": [
+            "Decimal"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "categorizer.normalize",
+          "specifiers": [
+            "normalize"
+          ]
+        },
+        {
+          "source": "categorizer.rules",
+          "specifiers": [
+            "match",
+            "resolve_internal_transfer_by_text"
+          ]
+        },
+        {
+          "source": "categorizer.schemas",
+          "specifiers": [
+            "OwnAccountRef",
+            "TransactionIn"
+          ]
+        }
+      ],
+      "exports": [
+        "_tx",
+        "_own_accounts",
+        "test_internal_transfer_matched_by_text",
+        "test_internal_transfer_requires_own_account_match",
+        "test_internal_transfer_requires_counterparty",
+        "test_rule_tier_emits_expected_category",
+        "test_rule_tier_falls_through"
+      ],
+      "totalLines": 164,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_taxonomy.py": {
+      "filePath": "tests/test_taxonomy.py",
+      "contentHash": "76078b41c38685060306622c083d069697890ec4f9cdea1cebc27e0a596263b2",
+      "functions": [
+        {
+          "name": "taxonomy",
+          "params": [],
+          "returnType": "Taxonomy",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_emittable_slugs_excludes_parents",
+          "params": [
+            "taxonomy"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "test_emittable_slugs_are_all_leaves",
+          "params": [
+            "taxonomy"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "test_emittable_slugs_includes_pendiente",
+          "params": [
+            "taxonomy"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "test_emittable_slugs_are_implemented",
+          "params": [
+            "taxonomy"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "test_implemented_slugs_still_includes_parents",
+          "params": [
+            "taxonomy"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "pytest",
+          "specifiers": [
+            "pytest"
+          ]
+        },
+        {
+          "source": "categorizer.taxonomy",
+          "specifiers": [
+            "Taxonomy",
+            "load_taxonomy"
+          ]
+        }
+      ],
+      "exports": [
+        "taxonomy",
+        "test_emittable_slugs_excludes_parents",
+        "test_emittable_slugs_are_all_leaves",
+        "test_emittable_slugs_includes_pendiente",
+        "test_emittable_slugs_are_implemented",
+        "test_implemented_slugs_still_includes_parents"
+      ],
+      "totalLines": 47,
+      "hasStructuralAnalysis": true
+    },
+    "training/README.md": {
+      "filePath": "training/README.md",
+      "contentHash": "d5321c82f26caf5dde17fd8abd561e80c323b2a8cd41dff0ca2d6eb7b7e2923a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 147,
+      "hasStructuralAnalysis": true
+    },
+    "training/__init__.py": {
+      "filePath": "training/__init__.py",
+      "contentHash": "059e95abbc5453dcae219fc00a7f9077720a4aaeceae33f291d84baefa62f0e7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 11,
+      "hasStructuralAnalysis": true
+    },
+    "training/dataset.py": {
+      "filePath": "training/dataset.py",
+      "contentHash": "02595a146081ca0d7a66f8204742527203eb2af80a99bdf240940080b47f8133",
+      "functions": [
+        {
+          "name": "_build_user_message",
+          "params": [
+            "description",
+            "normalized",
+            "amount",
+            "currency",
+            "transaction_type",
+            "tx_date",
+            "account_slug"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "_build_assistant_message",
+          "params": [
+            "category_slug",
+            "confidence",
+            "reasoning"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "fetch_rows",
+          "params": [
+            "db_url"
+          ],
+          "returnType": "list[TrainingRow]",
+          "exported": true,
+          "lineCount": 54
+        },
+        {
+          "name": "split_rows",
+          "params": [
+            "rows",
+            "eval_frac",
+            "seed"
+          ],
+          "returnType": "tuple[list[TrainingRow], list[TrainingRow]]",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "export",
+          "params": [
+            "db_url",
+            "out_dir",
+            "min_rows"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "classes": [
+        {
+          "name": "TrainingRow",
+          "methods": [
+            "to_json"
+          ],
+          "properties": [
+            "external_id",
+            "messages"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "create_engine",
+            "text"
+          ]
+        }
+      ],
+      "exports": [
+        "TrainingRow",
+        "_build_user_message",
+        "_build_assistant_message",
+        "fetch_rows",
+        "split_rows",
+        "export",
+        "main"
+      ],
+      "totalLines": 187,
+      "hasStructuralAnalysis": true
+    },
+    "training/eval_ft.py": {
+      "filePath": "training/eval_ft.py",
+      "contentHash": "2bf310d7651cca539da9bfca9c4232b9434e85ee7b6c6de66b405e89d6dae16f",
+      "functions": [
+        {
+          "name": "_dry_run",
+          "params": [
+            "args"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "_run",
+          "params": [
+            "args"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 51
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "_dry_run",
+        "_run",
+        "main"
+      ],
+      "totalLines": 110,
+      "hasStructuralAnalysis": true
+    },
+    "training/train.py": {
+      "filePath": "training/train.py",
+      "contentHash": "968255f388e3cb58833f40824e1e201c866c349776f0a70269cd73fbd223c1c9",
+      "functions": [
+        {
+          "name": "_dry_run",
+          "params": [
+            "args"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "_train",
+          "params": [
+            "args"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 69
+        },
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "_dry_run",
+        "_train",
+        "main"
+      ],
+      "totalLines": 145,
+      "hasStructuralAnalysis": true
+    }
+  }
+}
